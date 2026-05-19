@@ -3,6 +3,33 @@
 [link]Material-UI https://mui.com/ 
 Es una popular librería de componentes de React que implementa el sistema de diseño [link]Material Design https://m3.material.io/ de Google. Provee una gran variedad de componentes listos para usar que te permiten construir interfaces de usuario atractivas y consistentes de forma rápida.
 
+[st]Instalación
+
+Para agregar Material-UI a tu proyecto React (Vite o Create React App), instala el paquete principal junto con sus dependencias de estilos:
+
+[code:bash]
+npm install @mui/material @emotion/react @emotion/styled
+[endcode]
+
+Si también necesitas los íconos de Material Design, instala el paquete adicional:
+
+[code:bash]
+npm install @mui/icons-material
+[endcode]
+
+MUI usa la fuente **Roboto** por defecto. Puedes cargarla agregando este `<link>` en el `<head>` de tu `index.html`:
+
+[code:html]
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
+/>
+[endcode]
+
+Con eso ya puedes importar y usar cualquier componente de MUI directamente en tus archivos `.jsx`.
+
 [st]Componentes Esenciales
 A continuación, exploraremos algunos de los componentes más básicos y útiles.
 
@@ -158,4 +185,34 @@ export default function LoginForm() {
     </Stack>
   );
 }
+[endcode]
+
+[st] Template de main.jsx
+Dado que es una libreria gráfica hay que lograr que el tema claro/oscuro se mantenga también con los componentes de material. Use este `main.jsx`
+
+[code:jsx]
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import './index.css'
+import App from './App.jsx'
+
+import { ThemeProvider, createTheme } from '@mui/material/styles'
+import CssBaseline from '@mui/material/CssBaseline'
+
+const darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+
+const theme = createTheme({
+  palette: {
+    mode: darkMode ? 'dark' : 'light',
+  },
+})
+
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <App />
+    </ThemeProvider>
+  </StrictMode>,
+)
 [endcode]
