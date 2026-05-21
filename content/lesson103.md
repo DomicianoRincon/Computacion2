@@ -1,189 +1,130 @@
-[t] Rutas Anidadas y Layouts con Outlet
-En aplicaciones complejas, es común tener interfaces donde una parte de la página es estática (como una barra lateral de navegación, un encabezado o un pie de página) y solo una sección del contenido cambia. React Router maneja esto de forma elegante a través de las "rutas anidadas" y el componente `<Outlet>`.
-[st] ¿Qué es un Outlet?
-Un `<Outlet>` es un componente proporcionado por `react-router-dom` que actúa como un marcador de posición. Cuando tienes rutas anidadas, el componente de la ruta padre (conocido como "layout") decide dónde se deben renderizar los componentes de las rutas hijas. Ese lugar es precisamente donde colocas el `<Outlet />`.
+[t] Rutas Protegidas con ProtectedRoute
+En aplicaciones reales, ciertas rutas solo deben ser accesibles para usuarios autenticados. El patrón `ProtectedRoute` es un componente que actúa como guardia: verifica si el usuario tiene un token válido en el `AuthContext` y, si no lo tiene, lo redirige automáticamente a la pantalla de login.
 
-[st] Configurando Rutas Anidadas
-Para que el layout funcione, necesitas anidar las rutas en tu configuración de `createBrowserRouter`. Esto se hace a través de la propiedad `children` en el objeto de la ruta padre.
+[st] El componente ProtectedRoute
+`ProtectedRoute` lee el token del `AuthContext` definido en la lección anterior. Si el token existe, renderiza las rutas hijas mediante `<Outlet />`; si no existe, redirige a `/login`.
 [code:jsx]
-import {createBrowserRouter,RouterProvider} from "react-router-dom";
-import Home from "./pages/Home";
-import About from "./pages/About";
-import Dashboard from "./pages/Dashboard";
-import DashboardHome from "./pages/dashboard/DashboardHome";
-import DashboardSettings from "./pages/dashboard/DashboardSettings";
-import NotFound from "./pages/NotFound";
+import { Navigate, Outlet } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Home />,
-  },
-  {
-    path: "/about",
-    element: <About />,
-  },
-  {
-    path: "/dashboard",
-    element: <Dashboard />, // Este es el componente Layout
-    children: [ // Aquí comienzan las rutas anidadas
-      {
-        index: true, // Esta es la ruta por defecto para /dashboard
-        element: <DashboardHome />,
-      },
-      {
-        path: "settings", // Se resuelve como /dashboard/settings
-        element: <DashboardSettings />,
-      },
-    ],
-  },
-  {
-    path: "*",
-    element: <NotFound />,
-  },
-]);
+const ProtectedRoute = () => {
+  const { token } = useAuth();
 
-function App() {
-  return <RouterProvider router={router} />;
-}
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
 
-export default App;
+  return <Outlet />;
+};
+
+export default ProtectedRoute;
 [endcode]
+La prop `replace` evita que la redirección agregue una entrada al historial del navegador, impidiendo que el usuario quede atrapado al presionar "Atrás".
 
-[st] Analizando la Configuración
-
-1.  Ruta Padre (`/dashboard`): Cuando el usuario navega a `/dashboard`, React Router renderiza el componente `<Dashboard />`.
-2.  Propiedad `children`: Este array define las rutas que solo son accesibles *dentro* del layout de `<Dashboard />`.
-3.  Ruta Índice (`index: true`): El componente `<DashboardHome />` se renderizará en el `<Outlet />` del Dashboard cuando la URL sea exactamente `/dashboard`.
-4.  Ruta Hija (`path: "settings"`): El componente `<DashboardSettings />` se renderizará en el `<Outlet />` cuando la URL sea `/dashboard/settings`. React Router concatena automáticamente la ruta del padre con la de la hija.
-
-Usar este patrón es fundamental para crear aplicaciones escalables y bien organizadas, ya que te permite reutilizar la interfaz de usuario y mantener una estructura de rutas lógica y anidada.
-[t] Construyendo un Layout simple
-Primero tenemos el layuout general
+[st] La pantalla de Login
+La pantalla de login usa `setToken` del contexto para guardar el token, y `useNavigate` para redirigir al dashboard una vez autenticado.
 [code:jsx]
-import { Outlet, Link } from "react-router-dom";
-import { Box, Stack, Typography, Button } from "@mui/material";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { Button, Stack, TextField, Typography } from "@mui/material";
 
-const HomeScreen = () => {
+const LoginScreen = () => {
+  const { setToken } = useAuth();
+  const navigate = useNavigate();
+  const [username, setUsername] = useState("");
+
+  const handleLogin = () => {
+    // En una app real, aquí se haría la petición al servidor
+    const fakeToken = `token-${username}-${Date.now()}`;
+    setToken(fakeToken);
+    navigate("/");
+  };
+
   return (
-    <Stack direction="row" sx={{ height: "100vh" }}>
-        <Stack sx={{ width: 300, bgcolor: "#f4f4f4", p: 2 }}>
-            <Button>Inicio</Button>
-            <Button>Estudiantes</Button>
-            <Button>Configuración</Button>
-        </Stack>
-        <Box sx={{ flexGrow: 1, bgcolor: "background.paper", p: 3 }}>
-            <Outlet />
-        </Box>
+    <Stack alignItems="center" justifyContent="center" gap={2} sx={{ height: "100vh" }}>
+      <Typography variant="h4">Iniciar Sesión</Typography>
+      <TextField
+        label="Usuario"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+      />
+      <Button variant="contained" onClick={handleLogin} disabled={!username}>
+        Entrar
+      </Button>
     </Stack>
   );
-}
-export default HomeScreen;
-[endcode]
-Para que se vea bien necesitará modificar `index.css` y `App.css`.
-[st]
-
-
-[st] Creando los componentes de las rutas anidadas
-[code:jsx]
-import { Typography } from "@mui/material";
-
-export const Home = () => {
-  return <Typography variant="h4">Bienvenido al Dashboard</Typography>;
 };
 
-export const Students = () => {
-  return <Typography variant="h4">Lista de Estudiantes</Typography>;
-};
-
-export const Settings = () => {
-  return <Typography variant="h4">Configuración</Typography>;
-};
+export default LoginScreen;
 [endcode]
 
-[st] Configurando el enrutador
+[st] Configurando el enrutador con ProtectedRoute
+`ProtectedRoute` se usa como elemento padre en `createBrowserRouter`. Todas las rutas que sean hijas suyas quedarán protegidas automáticamente.
 [code:jsx]
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import HomeScreen from "./screens/HomeScreen";
-import { Home, Students, Settings } from "./components/DashboardComponents";
+import { AuthProvider } from "./context/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
+import LoginScreen from "./screens/LoginScreen";
+import HomePage from "./pages/HomePage";
+import DashboardPage from "./pages/DashboardPage";
 
 const router = createBrowserRouter([
   {
+    path: "/login",
+    element: <LoginScreen />,
+  },
+  {
     path: "/",
-    element: <HomeScreen />,
+    element: <ProtectedRoute />,   // Guardia de autenticación
     children: [
-      {
-        index: true,
-        element: <Home />,
-      },
-      {
-        path: "students",
-        element: <Students />,
-      },
-      {
-        path: "settings",
-        element: <Settings />,
-      },
+      { index: true, element: <HomePage /> },
+      { path: "dashboard", element: <DashboardPage /> },
     ],
   },
 ]);
 
 function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
+  );
 }
 
 export default App;
 [endcode]
-Con esta configuración, `HomeScreen` actúa como un layout que siempre está presente, y el contenido principal (representado por `<Outlet />`) cambia entre `Home`, `Students` y `Settings` según la ruta.
-[st] Usando `Link` para la navegación
-Para que los botones de la barra lateral funcionen, usamos el componente `<Link>` de React Router en lugar de etiquetas `<a>`.
+Cualquier ruta dentro de `children` de `ProtectedRoute` queda protegida. Agregar una ruta nueva al array no requiere ningún cambio adicional.
+
+[st] Cerrando sesión
+Para cerrar sesión, llama `setToken(null)` desde cualquier componente con acceso al contexto. El `AuthContext` limpia el `localStorage` automáticamente.
 [code:jsx]
-import { Outlet, Link } from "react-router-dom";
-import { Box, Stack, Typography, Button } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { Button } from "@mui/material";
 
-const HomeScreen = () => {
-  return (
-    <Stack direction="row" sx={{ height: "100vh" }}>
-      <Stack sx={{ width: 300, bgcolor: "#f4f4f4", p: 2 }}>
-        <Button component={Link} to="">Inicio</Button>
-        <Button component={Link} to="students">Estudiantes</Button>
-        <Button component={Link} to="settings">Configuración</Button>
-      </Stack>
-      <Box sx={{ flexGrow: 1, bgcolor: "background.paper", p: 3 }}>
-        <Outlet />
-      </Box>
-    </Stack>
-  );
+const LogoutButton = () => {
+  const { setToken } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    setToken(null);
+    navigate("/login");
+  };
+
+  return <Button onClick={handleLogout} color="error">Cerrar sesión</Button>;
 };
-export default HomeScreen;
-[endcode]
-Al usar `<Link>`, React Router intercepta la navegación y actualiza la URL y el contenido renderizado sin recargar la página, lo que proporciona una experiencia de usuario fluida y rápida.
-[st] Modificaciones a `index.css` y `App.css`
-Para que el layout ocupe toda la pantalla, es necesario realizar algunas modificaciones en los archivos CSS.
-[code:css]
-/* En App.css */
-.root {
-  height: 100vh;
-  width: 100vw;
-}
-[endcode]
-[code:css]
-/* En index.css */
-html, body, #root {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  width: 100%;
-  overflow: hidden; /* Opcional, para evitar barras de desplazamiento no deseadas */
-}
-[endcode]
-Estos cambios aseguran que el contenedor principal (`#root`) y sus elementos padres (`html`, `body`) ocupen el 100% de la altura y el ancho de la ventana del navegador, permitiendo que el layout de `HomeScreen` se expanda correctamente.
 
-[st] Resumen
-- Rutas Anidadas: Permiten construir layouts complejos donde una parte de la UI es persistente.
-- `<Outlet>`: Es el marcador de posición donde se renderizan los componentes de las rutas hijas.
-- Configuración: Se definen anidando rutas con la propiedad `children`.
-- `<Link>`: Se usa para la navegación interna sin recargar la página.
-- CSS: Es importante ajustar el CSS para que el layout ocupe el espacio deseado.
+export default LogoutButton;
+[endcode]
 
-Este enfoque es la base para construir aplicaciones de una sola página (SPA) robustas y mantenibles con React.
+[st] Flujo completo de autenticación
+[list]
+El usuario intenta acceder a `/` o cualquier ruta protegida.
+`ProtectedRoute` consulta `token` en el `AuthContext`.
+Si no hay token → redirige a `/login`.
+El usuario ingresa sus datos y `LoginScreen` llama a `setToken`.
+`AuthContext` sincroniza el token con `localStorage` automáticamente.
+`ProtectedRoute` detecta el token y permite el acceso a las rutas hijas.
+Al cerrar sesión, `setToken(null)` borra el token del contexto y del `localStorage`.
+[endlist]
