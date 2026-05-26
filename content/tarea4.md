@@ -22,14 +22,14 @@ Antes de iniciar una partida, el usuario puede elegir la cantidad de preguntas y
 `R2 · Partida activa`
 Las preguntas se presentan de a una. El usuario selecciona una respuesta y la aplicación le indica si fue correcta o incorrecta.
 
-`R3 · Resultado final`
-En todo momento, el usuario ve su puntaje (+1 por respuestas correctas, -1 por respuestas incorrectas). Desde ahí puede iniciar una nueva partida o cambiar las opciones de juego.
+`R3 · Puntaje`
+En todo momento, el usuario ve su puntaje (+1 por respuestas correctas, -1 por respuestas incorrectas). 
 
 `R4 · Partida persistente`
 La aplicación recuerda por qué parte del cuestionario va el usuario. Si recarga la página o la cierra y la vuelve a abrir, debe cargar la pregunta por la que iba el usuario y el puntaje que lleva.
 
 `R5 · Puntaje final`
-Al final, el usuario verá una pantalla con los resultados
+Al final, el usuario verá una pantalla con los resultados. Desde ahí puede iniciar una nueva partida o cambiar las opciones de juego.
 
 [st] Componentes requeridos
 La aplicación debe tener un componente llamado `QuestionCard` que muestra la pregunta de la trivia
@@ -56,3 +56,11 @@ Lista de todos los prompts usados con herramientas de IA: qué preguntaste y par
 
 [st] Classroom
 https://classroom.github.com/a/voQsqveS
+
+[st] Decisión
+
+[icon] https://i.imgflip.com/31a6wo.jpg?a494328
+
+Usted decide si se lo pasa a la IA y usted no interviene en el proceso de desarrollo en la tarea, o si usted comanda la IA y toma atenta nota de qué hace.
+
+El propósito de esta tarea es prepararse para el examen de front, donde tendrá que desarrollar sin asistentes.
