@@ -55,7 +55,7 @@ const LessonPage = forwardRef(({ sections }, ref) => {
     const section = lessonMap.get(lessonId);
 
     if (!section) {
-      const error = `[t] Lección no encontrada\nLa lección con ID "${lessonId}" no fue encontrada.`;
+      const error = `# Lección no encontrada\n\nLa lección con ID "${lessonId}" no fue encontrada.`;
       setParsedContent(LessonParser({ content: error }));
       setLoading(false);
       window.scrollTo(0, 0);

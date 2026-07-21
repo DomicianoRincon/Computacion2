@@ -1,0 +1,8 @@
+# Tarea 3
+
+Actualmente, los endpoints de nuestra API exponen directamente el id interno (autoincremental) de las entidades en las respuestas y en las URLs. Esto representa un riesgo de seguridad conocido como enumeración de recursos: un atacante puede simplemente iterar /courses/1, /courses/2, /courses/3... para descubrir todos los recursos del sistema, inferir el volumen de datos, o forzar accesos no autorizados. Para mitigar esto, es una práctica estándar en APIs REST usar un identificador público opaco, generalmente un UUID, que no revele ninguna información estructural sobre la base de datos.
+La tarea consiste en agregar un campo publicId de tipo UUID a las entidades que exponen información sensible o navegable: Course, Enrollment, Student, Professor, User, Role y Permission. Este publicId debe generarse automáticamente al crear la entidad (con UUID.randomUUID()), persistirse en base de datos, y ser el único identificador expuesto en los DTOs de respuesta y en los path variables de los endpoints — el id interno nunca debe salir de la capa de repositorio. Deberán además ajustar los mappers y los controllers para que las búsquedas por identificador usen el publicId, no el id interno.
+
+## Classroom
+
+https://classroom.github.com/a/MA36ikr6
