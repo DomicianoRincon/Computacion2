@@ -4,10 +4,7 @@
 // Set tocUrl to '' to use the local src/content/toc.md (development / offline mode).
 
 const courseConfig = {
-  // TEMP — testing the Markdown migration locally before pushing. Points at
-  // public/local-content/ (the real toc.md + converted content, copied from
-  // repo root). Revert to the raw.githubusercontent.com URL before shipping.
-  tocUrl: `${import.meta.env.BASE_URL}local-content/toc.md`,
+  tocUrl: 'https://raw.githubusercontent.com/DomicianoRincon/Computacion2/refs/heads/main/toc.md',
 };
 
 export default courseConfig;
