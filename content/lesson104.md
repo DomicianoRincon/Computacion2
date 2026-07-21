@@ -1,14 +1,18 @@
-[t] Axios
+# Axios
+
 Axios es una librería de JavaScript que funciona como un cliente HTTP. Su principal ventaja es que está basada en promesas, lo que simplifica enormemente la tarea de realizar peticiones a un servidor (API) y manejar las respuestas de forma asíncrona. Funciona tanto en el navegador como en Node.js.
 
-[st] Instalación
-[code:sh]
+## Instalación
+
+```sh
 npm install axios
-[endcode]
-[st] Petición GET con Axios
+```
+
+## Petición GET con Axios
+
 Una petición `GET` se utiliza para solicitar datos de un recurso específico. Con Axios, el método `.get()` devuelve una promesa que se resuelve con el objeto de respuesta.
 
-[code:js]
+```js
 import axios from 'axios';
 
 // Definir una función flecha asíncrona
@@ -27,12 +31,13 @@ const fetchUsers = async () => {
 
 // Llamar a la función
 fetchUsers();
-[endcode]
+```
 
-[st] Petición POST con Axios
+## Petición POST con Axios
+
 Una petición `POST` se usa para enviar datos a un servidor para crear un nuevo recurso. El método `.post()` toma dos argumentos principales: la URL y el objeto de datos que se enviará en el cuerpo de la petición.
 
-[code:js]
+```js
 import axios from 'axios';
 
 // Objeto del nuevo usuario
@@ -57,14 +62,15 @@ const createUser = async () => {
 
 // Llamar a la función
 createUser();
-[endcode]
+```
 
-[st] Interceptores
+## Interceptores
+
 Los interceptores son funciones que Axios ejecuta antes de que una petición sea enviada o después de que una respuesta sea recibida. Son extremadamente útiles para tareas repetitivas, como añadir un token de autenticación a cada petición.
 
 El siguiente ejemplo muestra cómo usar un interceptor de petición (`request`) para buscar un `accessToken` en el `localStorage` y añadirlo a la cabecera `Authorization` en cada llamada.
 
-[code:js]
+```js
 import axios from 'axios';
 
 // 1. Crear una instancia de Axios. Es una buena práctica para no afectar
@@ -97,4 +103,4 @@ apiClient.interceptors.request.use(
 // y añadirá el token automáticamente.
 export default apiClient;
 
-[endcode]
+```

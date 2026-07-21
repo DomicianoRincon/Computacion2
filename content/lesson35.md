@@ -1,10 +1,10 @@
-[t] Estado con useState
+# Estado con useState
 
 En React, el "estado" (state) es un valor que pertenece a un componente y puede cambiar con el tiempo. Cuando el estado cambia, React re-renderiza automáticamente el componente para reflejar esos cambios en la interfaz.
 
-[st] Por qué no funcionan las variables normales
+## Por qué no funcionan las variables normales
 
-[code:jsx]
+```jsx
 function Contador() {
   let contador = 0
 
@@ -15,22 +15,20 @@ function Contador() {
 
   return <button onClick={incrementar}>{contador}</button>
 }
-[endcode]
+```
 
 El problema es que React solo actualiza la pantalla cuando detecta un cambio en el **estado**. Una variable normal no dispara esa detección.
 
-[st] Introducción al Hook useState
+## Introducción al Hook useState
 
 El Hook `useState` nos permite añadir estado a los componentes funcionales. Es la forma más común y fundamental de gestionar el estado local.
 
 `useState` devuelve un arreglo con dos elementos:
 
-[list]
-El valor actual del estado
-Una función para actualizar ese valor
-[endlist]
+- El valor actual del estado
+- Una función para actualizar ese valor
 
-[code:jsx]
+```jsx
 import { useState } from 'react'
 
 function Contador() {
@@ -42,31 +40,31 @@ function Contador() {
 
   return <button onClick={incrementar}>{contador}</button>
 }
-[endcode]
+```
 
 Anatomía de `useState`:
 
-[code:jsx]
+```jsx
 const [valor, setValor] = useState(valorInicial)
 //     |       |                   |
 //     |       |                   Valor con el que empieza
 //     |       Función para cambiar el valor
 //     El valor actual
-[endcode]
+```
 
-[st] Actualizando el Estado
+## Actualizando el Estado
 
 Para actualizar el estado, siempre debes usar la función `set` que `useState` proporciona. Nunca modifiques el estado directamente: React no detectará el cambio y el componente no se re-renderizará.
 
 Cuando llamas a `setContador`, React actualiza el valor y re-renderiza el componente automáticamente.
 
-[st] Inmutabilidad del Estado
+## Inmutabilidad del Estado
 
 Es una práctica fundamental tratar el estado como inmutable. Para objetos y arreglos, siempre crea una nueva copia con los cambios deseados y usa la función `set` para actualizar.
 
-[st] Estado con Strings
+## Estado con Strings
 
-[code:jsx]
+```jsx
 import { useState } from 'react'
 
 function Saludo() {
@@ -83,13 +81,13 @@ function Saludo() {
     </div>
   )
 }
-[endcode]
+```
 
 El estado `nombre` siempre refleja lo que el usuario escribe, y el input siempre muestra el estado actual. Este patrón se llama **componente controlado**.
 
-[st] Estado con Booleans
+## Estado con Booleans
 
-[code:jsx]
+```jsx
 import { useState } from 'react'
 
 function Toggle() {
@@ -104,13 +102,13 @@ function Toggle() {
     </div>
   )
 }
-[endcode]
+```
 
-[st] Estado con Objetos
+## Estado con Objetos
 
 Cuando actualizas un objeto en el estado, copia las propiedades existentes con el spread operator y solo modifica las que necesites.
 
-[code:jsx]
+```jsx
 import { useState } from 'react'
 
 function UsuarioPerfil() {
@@ -133,13 +131,13 @@ function UsuarioPerfil() {
     </div>
   )
 }
-[endcode]
+```
 
-[st] Estado con Arrays
+## Estado con Arrays
 
 Similar a los objetos: cuando actualizas un arreglo, crea una nueva copia.
 
-[code:jsx]
+```jsx
 import { useState } from 'react'
 
 function ListaTareas() {
@@ -170,13 +168,13 @@ function ListaTareas() {
     </div>
   )
 }
-[endcode]
+```
 
-[st] Actualizaciones Funcionales
+## Actualizaciones Funcionales
 
 Cuando el nuevo estado depende del estado anterior, pasa una función a `set`. Esto garantiza que siempre trabajes con el valor más reciente.
 
-[code:jsx]
+```jsx
 import { useState } from 'react'
 
 function ContadorFuncional() {
@@ -193,13 +191,13 @@ function ContadorFuncional() {
     </div>
   )
 }
-[endcode]
+```
 
-[st] Mini-proyecto: Chat
+## Mini-proyecto: Chat
 
 Un input y un botón. Cada mensaje enviado se acumula en pantalla como una ventana de chat.
 
-[code:jsx]
+```jsx
 import { useState } from 'react'
 
 function App() {
@@ -228,22 +226,18 @@ function App() {
 }
 
 export default App
-[endcode]
+```
 
 Puntos clave del mini-proyecto:
 
-[list]
-`useState` con arreglo vacío como valor inicial: `useState([])`
-Spread operator para agregar sin mutar: `setMensajes([...mensajes, texto])`
-Limpiar el input tras enviar: `setTexto("")`
-Renderizar la lista con `.map()` y `key`
-[endlist]
+- `useState` con arreglo vacío como valor inicial: `useState([])`
+- Spread operator para agregar sin mutar: `setMensajes([...mensajes, texto])`
+- Limpiar el input tras enviar: `setTexto("")`
+- Renderizar la lista con `.map()` y `key`
 
-[st] Buenas Prácticas
+## Buenas Prácticas
 
-[list]
-No modifiques el estado directamente. Siempre usa la función `set` de `useState`
-Para objetos y arrays, crea nuevas copias al actualizar (inmutabilidad)
-Usa actualizaciones funcionales cuando el nuevo estado dependa del anterior
-Si un objeto de estado crece mucho, divide en múltiples variables de estado
-[endlist]
+- No modifiques el estado directamente. Siempre usa la función `set` de `useState`
+- Para objetos y arrays, crea nuevas copias al actualizar (inmutabilidad)
+- Usa actualizaciones funcionales cuando el nuevo estado dependa del anterior
+- Si un objeto de estado crece mucho, divide en múltiples variables de estado

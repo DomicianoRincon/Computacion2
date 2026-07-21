@@ -1,19 +1,22 @@
-[t] RestControllers y HTTP Mappings
-[st] @RestController
+# RestControllers y HTTP Mappings
+
+## @RestController
+
 `@RestController` marca una clase como controlador REST. Combina `@Controller` + `@ResponseBody`, lo que significa que cada método retorna datos directamente serializados como JSON, sin pasar por una vista.
 
-[code:java]
+```java
 @RestController
 @RequestMapping("/usuarios")
 public class UsuarioController {
     // todos los métodos aquí responden con JSON
 }
-[endcode]
+```
 
-[st] @RequestMapping
+## @RequestMapping
+
 `@RequestMapping` define el prefijo de URL base para todos los endpoints del controlador.
 
-[code:java]
+```java
 @RestController
 @RequestMapping("/api/v1/usuarios")
 public class UsuarioController {
@@ -23,21 +26,21 @@ public class UsuarioController {
         return usuarioService.findById(id);
     }
 }
-[endcode]
+```
 
 En la práctica, en lugar de `method = RequestMethod.GET` se usan las anotaciones específicas por verbo HTTP.
 
-[st] Mappings por verbo HTTP
-Spring provee una anotación específica para cada verbo HTTP:
-[list]
-`@GetMapping` — Consultar recursos (lectura, no modifica estado).
-`@PostMapping` — Crear un nuevo recurso.
-`@PutMapping` — Reemplazar un recurso completo.
-`@PatchMapping` — Actualizar parcialmente un recurso.
-`@DeleteMapping` — Eliminar un recurso.
-[endlist]
+## Mappings por verbo HTTP
 
-[code:java]
+Spring provee una anotación específica para cada verbo HTTP:
+
+- `@GetMapping` — Consultar recursos (lectura, no modifica estado).
+- `@PostMapping` — Crear un nuevo recurso.
+- `@PutMapping` — Reemplazar un recurso completo.
+- `@PatchMapping` — Actualizar parcialmente un recurso.
+- `@DeleteMapping` — Eliminar un recurso.
+
+```java
 @RestController
 @RequestMapping("/usuarios")
 public class UsuarioController {
@@ -67,12 +70,13 @@ public class UsuarioController {
         usuarioService.delete(id);
     }
 }
-[endcode]
+```
 
-[st] ResponseEntity
+## ResponseEntity
+
 `ResponseEntity<T>` permite controlar completamente la respuesta HTTP: el cuerpo, el código de estado y los headers. Es la forma recomendada de responder en un controlador REST.
 
-[mermaid]
+```mermaid
 flowchart TD
   M[Método del Controller] --> RE[ResponseEntity]
   RE --> SC[Status Code]
@@ -83,10 +87,11 @@ flowchart TD
   SC --> S204[204 No Content]
   SC --> S404[404 Not Found]
   SC --> S400[400 Bad Request]
-[endmermaid]
+```
 
 Formas de construir una `ResponseEntity`:
-[code:java]
+
+```java
 // Con el builder (recomendado)
 ResponseEntity.ok(body);                              // 200 OK con cuerpo
 ResponseEntity.status(HttpStatus.CREATED).body(dto);  // 201 Created con cuerpo
@@ -97,12 +102,13 @@ ResponseEntity.badRequest().build();                  // 400 Bad Request sin cue
 // Con código numérico
 ResponseEntity.status(201).body(dto);
 ResponseEntity.status(404).build();
-[endcode]
+```
 
-[st] HTTPStatus
+## HTTPStatus
+
 Spring provee la clase `HttpStatus` con constantes para todos los códigos HTTP estándar.
 
-[svg]
+```svg
 <svg xmlns="http://www.w3.org/2000/svg" width="520" height="290" font-family="Roboto, Arial, sans-serif" font-size="13">
   <rect x="10" y="10" width="500" height="270" rx="8" fill="#1a1f2e"/>
   <text x="30" y="38" fill="#aaa" font-size="12">CÓDIGO</text>
@@ -131,11 +137,13 @@ Spring provee la clase `HttpStatus` con constantes para todos los códigos HTTP 
   <text x="130" y="250" fill="#42A5F5">NOT_FOUND</text>
   <text x="290" y="250" fill="#ddd">Recurso no existe</text>
 </svg>
-[endsvg]
+```
 
-[st] CRUD completo con ResponseEntity
+## CRUD completo con ResponseEntity
+
 Así queda un controller completo usando `ResponseEntity` con los códigos correctos en cada operación:
-[code:java]
+
+```java
 @RestController
 @RequestMapping("/usuarios")
 public class UsuarioController {
@@ -177,4 +185,4 @@ public class UsuarioController {
         return ResponseEntity.noContent().build();                 // 204
     }
 }
-[endcode]
+```

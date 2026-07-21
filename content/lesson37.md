@@ -1,18 +1,21 @@
-[t] useEffect
+# useEffect
+
 `useEffect` te deja hacer cosas después de que React renderiza el componente.
 Por ejemplo, se usa para
-[list]
-Llamar una API.
-Escuchar o limpiar eventos.
-Actualizar el título de la página.
-[endlist]
+
+- Llamar una API.
+- Escuchar o limpiar eventos.
+- Actualizar el título de la página.
+
 `useEffect` es básicamente “Hacé algo cuando mi componente se monte, cambie o se desmonte.”
-[st]Anatomía de `useEffect`
+
+## Anatomía de `useEffect`
+
 `useEffect` es una función que recibe dos argumentos
 1.  Una función de efecto que se ejecutará después de que el componente se renderice.
 2.  Un array de dependencias (opcional) que controla cuándo se debe volver a ejecutar el efecto.
 
-[code:jsx]
+```jsx
 import React, { useEffect } from 'react';
 
 useEffect(() => {
@@ -24,15 +27,16 @@ useEffect(() => {
     console.log('El componente se va a desmontar o el efecto se va a re-ejecutar.');
   };
 }, [/* array de dependencias */]);
-[endcode]
+```
 
-[st] `useEffect` con `[]` (Array Vacío)
+## `useEffect` con `[]` (Array Vacío)
 
 Cuando el array de dependencias está vacío, el efecto se ejecuta una sola vez, justo después del primer renderizado del componente.
 
 Caso de uso típico
 Realizar una petición a una API para cargar datos iniciales.
-[code:jsx]
+
+```jsx
 import React, { useState, useEffect } from 'react';
 
 const UserProfile = () => {
@@ -66,7 +70,8 @@ const UserProfile = () => {
 };
 
 export default UserProfile;
-[endcode]
+```
+
 `Flujo`
 `1` Renderizando del componente
 `2` Renderizando componente user nulo
@@ -74,7 +79,8 @@ export default UserProfile;
 `4` Datos recibidos y estado actualizado.
 `5` Renderizando componente (con datos del usuario)
 `6` Limpieza: El componente UserProfile se está desmontando.
-[st] `useEffect` con Dependencias `[variable]`
+
+## `useEffect` con Dependencias `[variable]`
 
 Cuando incluyes una o más variables en el array de dependencias, el efecto se ejecutará después del primer renderizado y cada vez que alguna de esas variables cambie de valor.
 
@@ -89,7 +95,7 @@ Cuando incluyes una o más variables en el array de dependencias, el efecto se e
 Caso de uso típico
 Buscar datos que dependen de un ID que puede cambiar, o suscribirse a un evento que depende de una prop.
 
-[code:jsx]
+```jsx
 import React, { useState, useEffect } from 'react';
 
 const ProductDetails = ({ productId }) => {
@@ -125,21 +131,21 @@ const ProductDetails = ({ productId }) => {
 };
 
 export default ProductDetails;
-[endcode]
+```
 
 Si `productId` cambia de `1` a `2`, el flujo sería:
 1.  Se ejecuta la función de limpieza con el valor "viejo" (`productId` era `1`).
 2.  El componente se re-renderiza.
 3.  Se ejecuta la función de efecto con el valor "nuevo" (`productId` es `2`).
 
-[st]El Retorno de `useEffect`: La Función de Limpieza
+## El Retorno de `useEffect`: La Función de Limpieza
 
 La función que se retorna desde `useEffect` se llama función de limpieza (`cleanup function`). Su propósito es "limpiar" lo que el efecto hizo antes de que el componente se desmonte o antes de que el efecto se vuelva a ejecutar.
 
 ¿Por qué es importante?
 Para prevenir "fugas de memoria" (memory leaks) y comportamiento inesperado. Por ejemplo cancelar llamadas a API
 
-[code:jsx]
+```jsx
 import React, { useState, useEffect } from 'react';
 
 const ProductDetails = ({ productId }) => {
@@ -187,4 +193,4 @@ const ProductDetails = ({ productId }) => {
 };
 
 export default ProductDetails;
-[endcode]
+```

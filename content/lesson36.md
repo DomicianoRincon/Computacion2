@@ -1,42 +1,45 @@
-[t] Componentes Básicos de Material-UI
+# Componentes Básicos de Material-UI
 
-[link]Material-UI https://mui.com/ 
-Es una popular librería de componentes de React que implementa el sistema de diseño [link]Material Design https://m3.material.io/ de Google. Provee una gran variedad de componentes listos para usar que te permiten construir interfaces de usuario atractivas y consistentes de forma rápida.
+[Material-UI](https://mui.com/)
 
-[st]Instalación
+Es una popular librería de componentes de React que implementa el sistema de diseño [Material Design](https://m3.material.io/) de Google. Provee una gran variedad de componentes listos para usar que te permiten construir interfaces de usuario atractivas y consistentes de forma rápida.
+
+## Instalación
 
 Para agregar Material-UI a tu proyecto React (Vite o Create React App), instala el paquete principal junto con sus dependencias de estilos:
 
-[code:bash]
+```bash
 npm install @mui/material @emotion/react @emotion/styled
-[endcode]
+```
 
 Si también necesitas los íconos de Material Design, instala el paquete adicional:
 
-[code:bash]
+```bash
 npm install @mui/icons-material
-[endcode]
+```
 
 MUI usa la fuente **Roboto** por defecto. Puedes cargarla agregando este `<link>` en el `<head>` de tu `index.html`:
 
-[code:html]
+```html
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link
   rel="stylesheet"
   href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
 />
-[endcode]
+```
 
 Con eso ya puedes importar y usar cualquier componente de MUI directamente en tus archivos `.jsx`.
 
-[st]Componentes Esenciales
+## Componentes Esenciales
+
 A continuación, exploraremos algunos de los componentes más básicos y útiles.
 
-[st]Stack
+## Stack
+
 El componente `Stack` es un contenedor que te permite organizar elementos en una sola dimensión, ya sea vertical u horizontalmente. Es ideal para distribuir el espaciado entre elementos de forma consistente.
 
-[code:jsx]
+```jsx
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 
@@ -49,13 +52,13 @@ export default function BasicStack() {
     </Stack>
   );
 }
-[endcode]
+```
 
-[st]Typography (Label)
+## Typography (Label)
 
 Para mostrar texto, Material-UI provee el componente `Typography`. Funciona como un reemplazo para las etiquetas HTML semánticas (`<h1>`, `<p>`, `<span>`, etc.) y permite aplicar estilos de texto consistentes.
 
-[code:jsx]
+```jsx
 import Typography from '@mui/material/Typography';
 
 export default function BasicTypography() {
@@ -65,13 +68,13 @@ export default function BasicTypography() {
     </Typography>
   );
 }
-[endcode]
+```
 
-[st]TextField
+## TextField
 
 El `TextField` es el componente para la entrada de datos por parte del usuario. Es altamente configurable y puedes capturar su valor a través del evento `onChange`.
 
-[code:jsx]
+```jsx
 import React, { useState } from 'react';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
@@ -98,13 +101,13 @@ export default function BasicTextField() {
     </>
   );
 }
-[endcode]
+```
 
-[st]Button
+## Button
 
 El `Button` permite a los usuarios ejecutar una acción con un solo clic. Puedes manejar esta interacción con el evento `onClick`.
 
-[code:jsx]
+```jsx
 import React from 'react';
 import Button from '@mui/material/Button';
 
@@ -119,13 +122,13 @@ export default function BasicButton() {
     </Button>
   );
 }
-[endcode]
+```
 
-[st]Imagen
+## Imagen
 
 Para mostrar imágenes, puedes usar la etiqueta `<img>` estándar de HTML o componentes de Material-UI como `CardMedia` si estás dentro de un `Card`. Para un uso simple, un `div` con una imagen de fondo o una etiqueta `img` estilizada es suficiente.
 
-[code:jsx]
+```jsx
 import React from 'react';
 
 export default function BasicImage() {
@@ -137,13 +140,13 @@ export default function BasicImage() {
     />
   );
 }
-[endcode]
+```
 
-[st]Ejemplo Completo
+## Ejemplo Completo
 
 Ahora, combinemos todos estos elementos usando `Stack` para organizarlos verticalmente.
 
-[code:jsx]
+```jsx
 import React, { useState } from 'react';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -185,12 +188,13 @@ export default function LoginForm() {
     </Stack>
   );
 }
-[endcode]
+```
 
-[st] Template de main.jsx
+## Template de main.jsx
+
 Dado que es una libreria gráfica hay que lograr que el tema claro/oscuro se mantenga también con los componentes de material. Use este `main.jsx`
 
-[code:jsx]
+```jsx
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
@@ -215,4 +219,4 @@ createRoot(document.getElementById('root')).render(
     </ThemeProvider>
   </StrictMode>,
 )
-[endcode]
+```

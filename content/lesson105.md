@@ -1,12 +1,14 @@
-[t] useRef
+# useRef
+
 En React, la forma más común de manejar formularios es a través de "componentes controlados", usando el hook `useState` para gestionar el valor de cada campo. Sin embargo, cuando un formulario tiene muchos campos, este enfoque puede causar problemas de rendimiento, ya que el componente se vuelve a renderizar con cada tecla que el usuario presiona.
 
 Una mejor práctica para formularios grandes o complejos es usar "componentes no controlados" con el hook `useRef`. Con `useRef`, accedemos al valor del campo directamente desde el DOM solo cuando es necesario (por ejemplo, al enviar el formulario), evitando renderizados innecesarios.
 
-[st] Ejemplo 
+## Ejemplo
+
 Este ejemplo muestra un formulario de perfil de usuario. Los valores no se guardan en un estado, sino que se leen directamente del DOM al momento del envío.
 
-[code:js]
+```js
 import React, { useRef } from "react";
 import {
   TextField,
@@ -90,9 +92,10 @@ function ProfileForm() {
 }
 
 export default ProfileForm;
-[endcode]
+```
 
-[st] Ventajas de `useRef` en Formularios
+## Ventajas de `useRef` en Formularios
+
 1.  Rendimiento: Es la principal ventaja. El componente solo se renderiza una vez (la inicial). No hay más renderizados al escribir en los campos, lo que hace la UI mucho más fluida en formularios con decenas o cientos de campos.
 
 2.  Acceso Directo al DOM: `useRef` te da una "puerta de escape" para interactuar directamente con los nodos del DOM, lo cual es ideal para leer valores de forma imperativa como en este caso.

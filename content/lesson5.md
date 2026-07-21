@@ -1,28 +1,39 @@
-[t] Wiring de Beans e Inyección de Dependencias en Spring
-[st] Inyección de dependencias
+# Wiring de Beans e Inyección de Dependencias en Spring
+
+## Inyección de dependencias
+
 En Spring Boot, la inyección de dependencias es el mecanismo mediante el cual el framework administra y proporciona instancias de objetos (beans) a otras clases sin que estas tengan que crearlas manualmente. Este proceso, conocido como wiring de beans, permite definir cómo se relacionan y comunican los componentes dentro de la aplicación, asegurando un código más modular, reutilizable y fácil de mantener al reducir el acoplamiento entre las dependencias.
-[icon]image8.png|Wiring de Beans
-[st] Capa Repository 
+
+![Wiring de Beans](image8.png "icon")
+
+## Capa Repository
+
 La capa Repository es la encargada de acceder a los datos. Es la que se comunica con la base de datos, archivos o cualquier otro sistema de almacenamiento.
 En este ejemplo, usaremos una lista en memoria en lugar de una base de datos real.
 Más adelante, podríamos reemplazarla por JDBC, JPA o cualquier otro mecanismo sin cambiar la lógica de negocio.
 
 💡 Es el `almacén` de la aplicación, donde se guardan y recuperan datos.
-[st] Capa Service
+
+## Capa Service
+
 La capa Service es la encargada de la lógica de negocio.
 Actúa como un intermediario entre el controlador (Controller, Servlet) y la capa Repository.
 Puede aplicar reglas de negocio antes de enviar los datos al Repository, como:
 Validaciones de datos: Verificar que los datos cumplan ciertos criterios antes de guardarlos (por ejemplo, que un correo sea válido o que una cantidad no sea negativa). Transformación y normalización: Convertir datos a un formato adecuado antes de almacenarlos (por ejemplo, convertir textos a minúsculas o eliminar espacios en blanco).
-[list]
-Lógica de negocio: Implementar reglas específicas del dominio, como restricciones de compra o cálculos de impuestos.
-Gestión de transacciones: Asegurar la consistencia de los datos mediante el manejo de transacciones.
-Llamadas a otros servicios: Integrar información de otras fuentes o microservicios antes de interactuar con la base de datos.
-[endlist]
+
+- Lógica de negocio: Implementar reglas específicas del dominio, como restricciones de compra o cálculos de impuestos.
+- Gestión de transacciones: Asegurar la consistencia de los datos mediante el manejo de transacciones.
+- Llamadas a otros servicios: Integrar información de otras fuentes o microservicios antes de interactuar con la base de datos.
+
 💡 Es el cerebro de la aplicación, que decide qué hacer antes de interactuar con los datos.
-[icon]image9.png|Capas Service y Repository
-[st] Construyamos un ejemplo
+
+![Capas Service y Repository](image9.png "icon")
+
+## Construyamos un ejemplo
+
 Vamos a aplicar el wiring de beans para trabajar en una aplicación que gestione el registro de Estudiantes y sus Cursos.
-[code:java]
+
+```java
 import java.util.List;
 
 public class Student {
@@ -41,8 +52,9 @@ public class Student {
     //Getters y setters
     
 }
-[endcode]
-[code:java]
+```
+
+```java
 public class Course {
     
     private int id;
@@ -60,10 +72,13 @@ public class Course {
     //Getters y setters
 
 }
-[endcode]
-[st] 1. Creemos la capa de Repsository
+```
+
+## 1. Creemos la capa de Repsository
+
 Recordemos que la definición de las clases de la capa Repository hacen referencia a aquellas que nos dan acceso a datos. De momento no hemos visto persistencia de modo que simularemos el repository como un arreglo de elementos
-[code:java]
+
+```java
 import java.util.ArrayList;
 import java.util.List;
 
@@ -80,9 +95,11 @@ public class StudentRepository {
         // Aquí vamos a requerir el uso de CourseRepository.
     }
 }
-[endcode]
+```
+
 Podemos tener un Repository por entidad, faltaría el repository de cursos
-[code:java]
+
+```java
 import java.util.ArrayList;
 import java.util.List;
 
@@ -97,9 +114,11 @@ public class CourseRepository {
         courses.add(course);
     }
 }
-[endcode]
+```
+
 Debemos tener un Repository por entidad, faltaría el repository de cursos
-[code:java]
+
+```java
 import java.util.ArrayList;
 import java.util.List;
 
@@ -114,12 +133,15 @@ public class CourseRepository {
         courses.add(course);
     }
 }
-[endcode]
-[st] 2. Creemos la capa de Service
+```
+
+## 2. Creemos la capa de Service
+
 Vamos a generar adicionalmente un bean de service que nos permite hacer lógica de negocio para garantizar condiciones de unicidad e integridad de los datos que se almacenan
 
 Un service para Student
-[code:java]
+
+```java
 import java.util.List;
 
 public class StudentService {
@@ -127,9 +149,11 @@ public class StudentService {
     ...
 
 }
-[endcode]
+```
+
 Otro service para Course
-[code:java]
+
+```java
 import java.util.List;
 
 public class CourseService {
@@ -137,10 +161,11 @@ public class CourseService {
     ...
 
 }
-[endcode]
+```
 
-[st] 3. Hagamos el mise en place
-[code:java]
+## 3. Hagamos el mise en place
+
+```java
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
@@ -157,12 +182,17 @@ public class CourseService {
     <bean id="courseService" class="paquete.de.tu.proyecto.services.CourseService"/>
 
 </beans>
-[endcode]
-[st] 4. Debemos configurar esta disposición
+```
+
+## 4. Debemos configurar esta disposición
+
 La idea es generar los beans y posteriormente conectarlos
-[icon] image7.png
+
+![Imagen](image7.png "icon")
+
 En la imagen aparecen conexinones de bean. En este caso usamos la Agregación. En el ejemplo, supongamos que MiClaseB quiere usar los métodos de MiClaseA
-[code:java]
+
+```java
 public class ClaseA{
     ...
 }
@@ -174,18 +204,23 @@ public class ClaseB{
         this.objetoA = objetoA;
     }
 }
-[endcode]
+```
+
 En el XML puede crear los objeto y definir las dependencias
-[code:java]
+
+```java
 <bean id="objetoA" class="ClaseA"/>
 
 <bean id="objetoB" class="ClaseB">
     <constructor-arg ref="objetoA"/>
 </bean>
-[endcode]
-[st] 4A. Alternativa: por medio de métodos
+```
+
+## 4A. Alternativa: por medio de métodos
+
 Es algo similar en donde también se usa la Agregación
-[code:java]
+
+```java
 public class ClaseA {
     ...
 }
@@ -197,26 +232,32 @@ public class ClaseB {
         this.objetoA = objetoA;
     }
 }
-[endcode]
+```
+
 En el XML ahora se inyecta por medio de `property`
-[code:java]
+
+```java
 <bean id="objetoA" class="ClaseA"/>
 
 <bean id="objetoB" class="ClaseB">
     <property name="objetoA" ref="objetoA"/>
 </bean>
-[endcode]
+```
 
-[st] Inicializar y destruir el bean 
+## Inicializar y destruir el bean
+
 Puede ejecutar un método cuando crea un bean, por ejemplo, para establecer condiciones iniciales
-[code:xml]
+
+```xml
 <bean id="studentRepository"
       class="paquete.de.tu.proyecto.repositories.StudentRepository"
       init-method="init"
       destroy-method="cleanup"/>
-[endcode]
+```
+
 El método debe crearlo como `public void`
-[code:java]
+
+```java
 public class StudentRepository {
 
     private List<Student> students;
@@ -234,11 +275,12 @@ public class StudentRepository {
         students.add(student);
     }
 }
-[endcode]
+```
 
 Y también puede ejecutar código cuando se destruye el IoC container, por ejemplo cerrar conexiones
-[code:java]
+
+```java
 public void cleanup() {
     System.out.println("Liberando recursos antes de destruir el bean");
 }
-[endcode]
+```

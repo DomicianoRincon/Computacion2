@@ -1,6 +1,8 @@
-[t] Despliegue
+# Despliegue
+
 Entre todos vamos a conectarnos a uno de los PC de la sala por SSH. Lo primero es escoger uno de los siguientes PC. 
-[code:plain]
+
+```plain
 PC11
 192.168.131.31
 
@@ -30,59 +32,73 @@ PC19
 
 PC20
 192.168.131.40 
-[endcode]
+```
 
 Entremos con SSH
-[code:plain]
+
+```plain
 ssh computacion@<IP>
-[endcode]
+```
 
 Una vez dentro, descarguemos el tomcat
-[code:plain]
+
+```plain
 wget https://dlcdn.apache.org/tomcat/tomcat-11/v11.0.18/bin/apache-tomcat-11.0.18.zip
-[endcode]
+```
 
 Descomprimamos
-[code:plain]
+
+```plain
 unzip apache-tomcat-11.0.18.zip
-[endcode]
+```
 
 Limpiemos el reguero eliminando el zip
-[code:plain]
+
+```plain
 rm apache-tomcat-11.0.18.zip
-[endcode]
+```
 
 Parémosnos en la carpeta bin de tomcat y le damos permiso a la carpeta para ejecutar sh.
-[code:plain]
+
+```plain
 chmod +x *.sh
-[endcode]
+```
 
 Ahora podemos ejecutar el startup de tomcat
-[code:plain]
+
+```plain
 JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./startup.sh
-[endcode]
+```
 
 Ya una vez todo ok. Vamos a enviar un war de prueba por medio de SCP.
-[code:plain]
-scp ./miapp.war computacion@<IP>:/home/computacion/apache-tomcat-11.0.9/webapps/
-[endcode]
 
-[st] Monitor de puerto
+```plain
+scp ./miapp.war computacion@<IP>:/home/computacion/apache-tomcat-11.0.9/webapps/
+```
+
+## Monitor de puerto
 
 Ver todos los puertos abiertos
-[code:bash]
+
+```bash
 ss -tulnp
-[endcode]
+```
+
 Luego si quiere verificar los procesos que estan en el 8080 puede usar
-[code:bash]
+
+```bash
 lsof -i :8080
-[endcode]
+```
+
 Saldrá algo como
-[code:plain]
+
+```plain
 COMMAND   PID         USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
 java     15432 computacion   50u  IPv6  67890      0t0  TCP *:http-alt (LISTEN)
-[endcode]
+```
+
 Y finalmente puede matar el proceso usando su PID
-[code:bash]
+
+```bash
 kill -9 12345
-[endcode]
+```

@@ -1,7 +1,8 @@
-[t] Filtros por Request
+# Filtros por Request
+
 Una vez tenemos los filtros deberíamos poder verificar el token antes de que el request siga su camino normal. Debemos pensarnos en estos filtros por request o `OncePerRequestFilter` como interceptores que podemos ubicar dentro de la ejecución de un `SecurityFilterChain`
 
-[code:plain]
+```plain
 Request
   ↓
 [CorsFilter]                            // Maneja CORS (si está habilitado)
@@ -19,7 +20,7 @@ Request
 [FilterSecurityInterceptor]             // Aplica reglas de acceso (.authorizeHttpRequests)
   ↓
 [Controller]                            // Si todo está ok, llega al endpoint
-[endcode]
+```
 
 `CorsFilter`
 Maneja las solicitudes de orígenes cruzados agregando los encabezados Access-Control-Allow-* antes de que se realice cualquier validación de seguridad.
@@ -40,9 +41,11 @@ Captura excepciones de seguridad, como AccessDeniedException o AuthenticationExc
 `FilterSecurityInterceptor`
 Es el filtro final del SecurityFilterChain; evalúa las reglas configuradas con .authorizeHttpRequests() o las restricciones establecidas mediante anotaciones como @PreAuthorize.
 
-[st] Verificador de auth headers
+## Verificador de auth headers
+
 Vamos a analizar este filtro
-[code:java]
+
+```java
 @Component
 public class HeaderLoggingFilter extends OncePerRequestFilter {
     @Override
@@ -58,9 +61,11 @@ public class HeaderLoggingFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 }
-[endcode]
+```
+
 Una vez con esto, ponga el filtro antes del UsernamePasswordAuthenticationFilter
-[code:java]
+
+```java
 //@Bean
 //@Order(2)
 //public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -75,13 +80,17 @@ Una vez con esto, ponga el filtro antes del UsernamePasswordAuthenticationFilter
 //        .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 //    return http.build();
 }
-[endcode]
+```
+
 Verifique qué pasa 
-[st] Extracción de información y verificación
+
+## Extracción de información y verificación
+
 Ya entendiendo como interceptamos request http, vamos a hacer el siguiente flujo: interceptamos el request, verificamos que el header llamado `Authorization` tenga la siguiente sencuencia: `Bearer <access_token>` donde `<access_token>` es el token que el cliente envia al servidor. Si el token es válido, lo dejamos pasar y si no es válido contestamos con 403.
 
 Lo primero es saber cómo extraer la información del token, que debería esta en el `JwtService`
-[code:java]
+
+```java
 public Claims extractAllClaims(String token) {
   try{
     Claims claims = Jwts.parserBuilder()
@@ -107,31 +116,43 @@ public Claims extractAllClaims(String token) {
     throw e;
   }
 }
-[endcode]
+```
+
 Este método devuelve un objeto `Claims`. Que principalmente tiene el subject que es el `username` y los `authorities`.
-[code:java]
+
+```java
 Claims claims = jwtService.extractAllClaims(jwt);
 String username = claims.getSubject();
 List<String> authorities = claims.get("authorities", List.class);
-[endcode]
-[st] Autenticación con Token
+```
+
+## Autenticación con Token
+
 Ya una vez con esto y antes de dejar que el request vaya al siguiente filtro, debemos finalmente autenticarnos.
-[code:java]
+
+```java
 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
   email, null, authorities
 );
-[endcode]
+```
+
 Y finalmente ...
-[code:java]
+
+```java
 SecurityContextHolder.getContext().setAuthentication(authToken);
-[endcode]
+```
+
 Esta última linea nos permite autenticarnos, asi que podemos enviar la request al siguiente eslabón de la cadena
-[code:java]
+
+```java
 filterChain.doFilter(request, response);
-[endcode]
-[st] Manejo de errores
+```
+
+## Manejo de errores
+
 En el OncePerRequestFilter permite devolver la solicitud
-[code:java]
+
+```java
 @Autowired
 private ObjectMapper objectMapper;
 
@@ -145,11 +166,13 @@ String json = objectMapper.writeValueAsString(errorResponse);
 
 response.getWriter().write(json);
 response.getWriter().flush();
-[endcode]
+```
 
-[st] Exception Handling
+## Exception Handling
+
 Podemos manejar excepciones en el filter chain orden 2
-[code:java]
+
+```java
 //@Bean
 //@Order(2)
 //public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -178,7 +201,8 @@ Podemos manejar excepciones en el filter chain orden 2
         );
 //    return http.build();
 //}
-[endcode]
+```
+
 Donde `authenticationEntryPoint` se ejecuta cuando no hay token válido. En lugar de redirigir al filtro orden 3, responde `Unauthorized`.
 
 Y `accessDeniedHandler` cuando el usuario sí tiene token válido pero no con los authorities suficientes.

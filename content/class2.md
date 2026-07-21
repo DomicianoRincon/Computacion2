@@ -1,7 +1,10 @@
-[t] Sesión 2 · 31 de Julio
+# Sesión 2 · 31 de Julio
+
 Este fue el programa que creamos en la sesión 1
-[st] HTTP Server multihilo
-[code:java]
+
+## HTTP Server multihilo
+
+```java
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -75,7 +78,6 @@ public class Main {
             System.out.println("No se encontro el archivo");
         }
 
-
     }
 
     public static void main(String[] args) throws IOException {
@@ -83,6 +85,6 @@ public class Main {
         main.init();
     }
 }
-[endcode]
+```
 
 Esto funciona siempre y cuando tengamos en la raíz del proyecto una carpeta llamada `resources` con los archivos base

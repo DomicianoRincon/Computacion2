@@ -1,4 +1,6 @@
-[t] Sesión 4 · 12 de Agosto
+# Sesión 4 · 12 de Agosto
+
 Vimos conceptualmente qué es el IoC Container o de aquí en adelante `AplicationContext`.
 Hicimos este proyecto en clase
-[link] (Clase 3A) https://github.com/Domiciano/CN2Semana3A
+
+[Clase 3A](https://github.com/Domiciano/CN2Semana3A)

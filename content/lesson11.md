@@ -1,22 +1,31 @@
-[t] Relación muchos a muchos
-[st] Introducción a las Relaciones Muchos a Muchos
+# Relación muchos a muchos
+
+## Introducción a las Relaciones Muchos a Muchos
+
 En JPA, una relación muchos a muchos (Many-to-Many) se utiliza para modelar una asociación en la que una instancia de una entidad puede estar relacionada con múltiples instancias de otra entidad, y viceversa. Por ejemplo, un estudiante puede inscribirse en muchos cursos, y un curso puede tener muchos estudiantes.
-[st] El Problema con @ManyToMany
+
+## El Problema con @ManyToMany
+
 Aunque JPA proporciona la anotación `@ManyToMany` para simplificar las relaciones muchos a muchos, a menudo es mejor evitarla en aplicaciones complejas. La razón principal es que la tabla de unión es gestionada automáticamente por el proveedor de persistencia (por ejemplo, Hibernate), lo que dificulta la adición de columnas adicionales a esta tabla (por ejemplo, una fecha de inscripción, una calificación, etc.).
 Una solución más flexible y potente es modelar la tabla de unión como una entidad propia. De esta manera, tenemos control total sobre ella.
-[st] Modelando la Tabla de Unión como una Entidad
+
+## Modelando la Tabla de Unión como una Entidad
+
 Para modelar la tabla de unión como una entidad, necesitamos:
 1.  Una clase para representar la clave primaria compuesta de la tabla de unión. Esta clase se anotará con `@Embeddable`.
 2.  La entidad de la tabla de unión, que utilizará la clave primaria compuesta a través de la anotación `@EmbeddedId`.
 3.  Dos relaciones `@ManyToOne` desde la entidad de la tabla de unión hacia las dos entidades principales.
 4.  Dos relaciones `@OneToMany` desde cada una de las entidades principales hacia la entidad de la tabla de unión.
 
-[st] Ejemplo: Estudiantes y Cursos
+## Ejemplo: Estudiantes y Cursos
+
 Vamos a modelar una relación muchos a muchos entre las entidades `Student` y `Course`.
-[st] La Clave Primaria Compuesta (`@Embeddable`)
+
+## La Clave Primaria Compuesta (`@Embeddable`)
+
 Primero, creamos la clase para la clave primaria compuesta, `StudentCourseId`. Esta clase debe implementar `Serializable` y sobreescribir los métodos `hashCode()` y `equals()`.
 
-[code:java]
+```java
 package com.example.myapp.model;
 
 import jakarta.persistence.Column;
@@ -49,10 +58,13 @@ public class StudentCourseId implements Serializable {
         return Objects.hash(studentId, courseId);
     }
 }
-[endcode]
-[st] La Entidad de la Tabla de Unión (`@EmbeddedId`)
+```
+
+## La Entidad de la Tabla de Unión (`@EmbeddedId`)
+
 Ahora, creamos la entidad `StudentCourse`, que representa la tabla de unión.
-[code:java]
+
+```java
 package com.example.myapp.model;
 
 import jakarta.persistence.*;
@@ -80,18 +92,19 @@ public class StudentCourse {
 
     // Constructores, getters y setters
 }
-[endcode]
+```
+
 -   `@EmbeddedId`: Indica que la clave primaria es una clase embebida.
 
 -   `@MapsId`: Se utiliza para mapear los campos de la clave primaria compuesta a las relaciones `@ManyToOne`. El valor de `@MapsId` debe coincidir con el nombre del campo en la clase `StudentCourseId`.
 
 -   `fetch = FetchType.LAZY` se usa para que cuando se cargue la entidad, no cargue el objeto sino hasta que sea llamado
 
-[st] 3. Actualizando las Entidades Principales
+## 3. Actualizando las Entidades Principales
 
 Finalmente, actualizamos las entidades `Student` y `Course` para que tengan una relación `@OneToMany` con `StudentCourse`.
 
-[code:java]
+```java
 package com.example.myapp.model;
 
 import jakarta.persistence.*;
@@ -112,9 +125,9 @@ public class Student {
 
     // Constructores, getters y setters
 }
-[endcode]
+```
 
-[code:java]
+```java
 package com.example.myapp.model;
 
 import jakarta.persistence.*;
@@ -135,7 +148,7 @@ public class Course {
 
     // Constructores, getters y setters
 }
-[endcode]
+```
 
 El `cascade = CascadeType.ALL` permite propagar las operaciones sobre alguna entidad al guardar, actualizar, eliminar y refrescar
 

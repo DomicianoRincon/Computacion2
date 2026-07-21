@@ -1,21 +1,24 @@
-[t] Spring IoC Container
+# Spring IoC Container
+
 El IoC Container es un componente de Spring que gestiona instancias de objetos llamados beans. Un bean es cualquier clase de la aplicación que se registra en el contenedor, ya sea de forma explícita o automática. El IoC Container se encarga de crear, configurar y administrar sus instancias, permitiendo su uso en diferentes partes de la aplicación sin necesidad de instanciarlos manualmente.
 
 Inicialmente vamos a registrarlos de forma explícita. Para eso necesitamos primero el IoC Container.
 
-[st] Instalación del IoC Container
-[code:xml]
+## Instalación del IoC Container
+
+```xml
 <dependency>
     <groupId>org.springframework</groupId>
     <artifactId>spring-context</artifactId>
     <version>6.2.2</version>
 </dependency>
-[endcode]
+```
 
-[st] Ejemplo de Bean
+## Ejemplo de Bean
+
 La aplicación tendrá una lista de mensajes que se llenará en la medida que clientes envíen los mensajes. Tenga en cuenta que no tenemos persistencia. Por lo cual una vez el servidor haya terminado su ejecución, la información se perderá.
 
-[code:java]
+```java
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,13 +33,13 @@ public class MessageRepository {
         return messages;
     }
 }
-[endcode]
+```
 
-[st] Registro del Bean en el IoC Container
+## Registro del Bean en el IoC Container
 
 En `resources`, cree un archivo llamado `applicationContext.xml`, cuyo contenido es el siguiente:
 
-[code:xml]
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -46,10 +49,13 @@ En `resources`, cree un archivo llamado `applicationContext.xml`, cuyo contenido
     <bean id="messageRepository" class="org.example.yourproject.repository.MessageRepository" />
     
 </beans>
-[endcode]
-[st] Creación del IoC Container
+```
+
+## Creación del IoC Container
+
 Aquí lo que va a hacer es crear un contexto para la aplicación de modo que el IoC Container podrá ser accedido en cualquier parte de la aplicación. El IoC Container contendrá los beans dentro del XML.
-[code:java]
+
+```java
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -62,10 +68,13 @@ public class Application {
     }
 
 }
-[endcode]
-[st] Uso del bean
+```
+
+## Uso del bean
+
 Cree un Servlet que permita el uso del bean. Tendrá un método POST que recibirá un parámetro llamado `message` que se agregará al arreglo del Bean.
-[code:java]
+
+```java
 import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -93,12 +102,13 @@ public class MessageServlet extends HttpServlet {
     }
     
 }
-[endcode]
-[st] Hands-on con el IoC Container
+```
+
+## Hands-on con el IoC Container
+
 Vamos a crear un sitio web sencillo donde podamos registrar elementos en una lista de compras.
 Para eso vamos a necesitar 
-[list]
-Un bean que permita almacenar datos en memoria de aplicación (volátil)
-Luego un servlet deberá poder usar el mencionado bean de modo que el usuario pueda obtener la lista de elementos
-Ese bean también debería ofrecernos el medio para insertar elementos.
-[endlist]
+
+- Un bean que permita almacenar datos en memoria de aplicación (volátil)
+- Luego un servlet deberá poder usar el mencionado bean de modo que el usuario pueda obtener la lista de elementos
+- Ese bean también debería ofrecernos el medio para insertar elementos.

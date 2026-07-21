@@ -1,20 +1,25 @@
+# Reglas importantes
 
-[t] Reglas importantes
 Debe tener en cuenta las siguientes reglas en cuanto a las calificaciones del curso, como en el uso de Inteligencia Artificial Generativa.
-[st] Composición de los talleres
+
+## Composición de los talleres
+
 Las calificaciones del curso se componen de cinco (5) talleres que contribuyen progresivamente al desarrollo de un proyecto final. 
 
 El `componente grupal` corresponde a la implementación técnica que aportará directamente al proyecto final del curso y será desarrollado en equipo.
 
 El `componente individual` consistirá en un examen diseñado para evaluar las competencias específicas de cada unidad del curso, y será realizado de forma individual.
 
-[st] Acuerdos sobre el uso de Inteligencia Artificial Generativa en la asignatura
+## Acuerdos sobre el uso de Inteligencia Artificial Generativa en la asignatura
+
 La Inteligencia Artificial Generativa (IAG) es un tipo de Inteligencia Artificial (IA) capaz de crear contenido nuevo, como: textos, imágenes, música o código, a partir de modelos entrenados con grandes volúmenes de datos. Se centra en la creación de nuevo contenido, a partir de datos existentes.
 
 A diferencia de otras formas de IA que analizan o clasifican información, la IAG produce materiales originales en respuesta a indicaciones específicas o prompts (Lim et al., 2023). En coherencia con el Manifiesto sobre IA y educación de la Universidad Icesi, este curso promueve un uso ético, crítico y transparente de las tecnologías de IAG, permitiendo su aplicación en las actividades formativas y evaluativas de acuerdo con los niveles de uso que se especifican en la siguiente tabla. Se debe tener en cuenta que la ubicación de cada mecanismo o actividad en la tabla se refiere al máximo nivel posible de uso de IAG que se espera de los estudiantes en dicho mecanismo o actividad, no obstante, se pueden emplear también los niveles anteriores según se especifique en las guías de aprendizaje, consignas o enunciados.
 
 Durante el desarrollo de la asignatura, cuando se le indique, el estudiante deberá aplicar y declarar el nivel de uso de la IAG según la escala declarada, verificando la calidad, veracidad y pertinencia del contenido generado. Este acuerdo tiene como propósito fortalecer una relación formativa, reflexiva y dialógica con la IAG, orientada al desarrollo de capacidades creativas, investigativas y colaborativas.
-[st] Niveles de IA y su uso en el curso
+
+## Niveles de IA y su uso en el curso
+
 `No IAG`
 La actividad se desarrolla en entornos controlados donde no se permite ningún uso de IAG. Los
 estudiantes pueden emplear solamente sus propios conocimientos y habilidades.

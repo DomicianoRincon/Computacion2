@@ -1,26 +1,31 @@
-[t] Introducción a Thymeleaf para Vistas Dinámicas
-[st] ¿Qué es Thymeleaf?
+# Introducción a Thymeleaf para Vistas Dinámicas
+
+## ¿Qué es Thymeleaf?
+
 Hasta ahora, nuestros controladores con `@RestController` devuelven datos crudos en formato JSON. Esto es ideal para APIs que serán consumidas por clientes como React o aplicaciones móviles. Sin embargo, a veces queremos que nuestro propio servidor genere y sirva las páginas HTML completas.
 
 Thymeleaf es un "motor de plantillas" para Java que se especializa en esto. Nos permite crear plantillas HTML y, desde nuestro controlador, inyectar datos dinámicamente en ellas antes de enviarlas al navegador. Este enfoque se conoce como Server-Side Rendering (SSR).
 
-[st] Configuración
+## Configuración
+
 Para empezar a usar Thymeleaf, solo necesitas agregar la dependencia `spring-boot-starter-thymeleaf` a tu `pom.xml`. Spring Boot la detectará y configurará todo automáticamente.
 
-[code:xml]
+```xml
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-thymeleaf</artifactId>
 </dependency>
-[endcode]
+```
 
 Por convención, Spring Boot buscará tus plantillas HTML con extensión `.html` en el directorio: `src/main/resources/templates/`.
 
-[st] De `@RestController` a `@Controller`
+## De `@RestController` a `@Controller`
+
 La diferencia clave es que `@RestController` está optimizado para devolver datos (como JSON), mientras que `@Controller` está diseñado para devolver vistas.
 
 Veamos un controlador simple que usa Thymeleaf:
-[code:java]
+
+```java
 package com.example.demo.controller;
 
 import org.springframework.stereotype.Controller;
@@ -40,10 +45,11 @@ public class HomeController {
         return "home"; 
     }
 }
-[endcode]
+```
 
 Y esta sería la plantilla `home.html`:
-[code:html]
+
+```html
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -55,16 +61,19 @@ Y esta sería la plantilla `home.html`:
     <h1 th:text="${message}">Este texto será reemplazado</h1>
 </body>
 </html>
-[endcode]
+```
 
-[st] Enviando Datos a la Plantilla
+## Enviando Datos a la Plantilla
+
 Podemos pasar cualquier tipo de objeto a la vista a través del `Model`.
 
-[st] 1. Pasando un Objeto
+## 1. Pasando un Objeto
+
 Vamos a pasar un objeto `Student` a una vista de detalle.
 
 Controlador:
-[code:java]
+
+```java
 @GetMapping("/student-detail")
 public String detalleEstudiante(Model model) {
     // En una app real, obtendrías este estudiante del service.
@@ -76,10 +85,11 @@ public String detalleEstudiante(Model model) {
     model.addAttribute("student", student);
     return "detail"; // Renderiza detail.html
 }
-[endcode]
+```
 
 Plantilla `detail.html`:
-[code:html]
+
+```html
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
@@ -89,13 +99,15 @@ Plantilla `detail.html`:
     <p>Programa: <span th:text="${student.program}">Programa...</span></p>
 </body>
 </html>
-[endcode]
+```
 
-[st] 2. Pasando una Lista
+## 2. Pasando una Lista
+
 Para mostrar una lista de estudiantes, usamos el atributo `th:each`.
 
 Controlador:
-[code:java]
+
+```java
 @GetMapping("/students")
 public String listarEstudiantes(Model model) {
     // En una app real, esta lista vendría del service.
@@ -107,10 +119,11 @@ public String listarEstudiantes(Model model) {
     model.addAttribute("studentsList", students); 
     return "student-list"; // Renderiza student-list.html
 }
-[endcode]
+```
 
 Plantilla `student-list.html`:
-[code:html]
+
+```html
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
@@ -123,16 +136,17 @@ Plantilla `student-list.html`:
     </ul>
 </body>
 </html>
-[endcode]
+```
 
-[st] Recibiendo Datos con Formularios
+## Recibiendo Datos con Formularios
+
 Thymeleaf también simplifica el envío de datos desde el cliente al servidor.
 
 `Paso 1`
 Preparar el Controlador para mostrar el formulario
 El controlador necesita enviar a la plantilla un objeto "vacío" que Thymeleaf usará para enlazar los campos del formulario.
 
-[code:java]
+```java
 @Controller
 @RequestMapping("/courses")
 public class CourseController {
@@ -151,13 +165,13 @@ public class CourseController {
         return "course-form";
     }
 }
-[endcode]
+```
 
 `Paso 2`
 Crear el Formulario HTML con Thymeleaf
 En `course-form.html`, usamos `th:action` para la URL de envío y `th:object` para enlazar el formulario con el objeto `course` que pasamos desde el controlador. `th:field` conecta cada `input` a una propiedad del objeto.
 
-[code:html]
+```html
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
@@ -182,13 +196,13 @@ En `course-form.html`, usamos `th:action` para la URL de envío y `th:object` pa
     </form>
 </body>
 </html>
-[endcode]
+```
 
 `Paso 3`
 Crear el Controlador para recibir los datos
 Este método maneja la petición `POST` del formulario. La anotación `@ModelAttribute` toma los datos del formulario y los convierte en un objeto `Course` automáticamente.
 
-[code:java]
+```java
 // Dentro de CourseController
 
 @PostMapping("/save")
@@ -197,28 +211,29 @@ public String saveCourse(@ModelAttribute Course course) {
     // Redirigimos a otra página para evitar re-envíos del formulario
     return "redirect:/"; 
 }
-[endcode]
+```
 
-[st] Thymeleaf push-ups
+## Thymeleaf push-ups
+
 Vamos a realizar ejericicios para afianzar estos conocimientos
 
-[code:plain]
+```plain
 https://github.com/DomicianoRincon/Computacion2
-[endcode]
+```
 
 Realice las siguientes funciones usando platillas de thymeleaf (algunas están hechas arriba)
-[list]
-Listar los estudiantes
-Listar los cursos
-Agrege un curso
-Agrege un estudiante
-Eliminar curso
-Eliminar estudiante
-Matricular un estudiante en un curso
-Eliminar matricula de un curso
-[endlist]
 
-[st] Resumen de Atributos Comunes
+- Listar los estudiantes
+- Listar los cursos
+- Agrege un curso
+- Agrege un estudiante
+- Eliminar curso
+- Eliminar estudiante
+- Matricular un estudiante en un curso
+- Eliminar matricula de un curso
+
+## Resumen de Atributos Comunes
+
 `th:text`: Reemplaza el contenido de una etiqueta con un valor.
 `th:each`: Itera sobre una colección (List, Map, etc.).
 `th:if` / `th:unless`: Muestra un elemento condicionalmente.
@@ -229,7 +244,8 @@ Eliminar matricula de un curso
 `th:src`: Especifica una fuente (URL) para imágenes, scripts, etc.
 `th:switch` / `th:case`: Equivalente a una estructura switch-case.
 
-[st] Integrando CSS y JavaScript
+## Integrando CSS y JavaScript
+
 Para que tus plantillas no solo sean dinámicas sino también atractivas, necesitas aplicar estilos CSS y, opcionalmente, añadir interactividad con JavaScript.
 
 `Paso 1`: Organizar los archivos estáticos
@@ -242,7 +258,7 @@ Por convención, Spring Boot sirve archivos estáticos desde el directorio `src/
 `Paso 2`: Enlazar el CSS en la plantilla HTML
 Para enlazar tu hoja de estilo (por ejemplo, `styles.css`) en tu plantilla de Thymeleaf, usa la etiqueta `<link>` en el `<head>` del HTML. Es crucial usar `th:href` con la sintaxis `@{...}` para que Spring resuelva la URL correctamente.
 
-[code:html]
+```html
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -256,6 +272,6 @@ Para enlazar tu hoja de estilo (por ejemplo, `styles.css`) en tu plantilla de Th
     <!-- El contenido de tu página va aquí -->
 </body>
 </html>
-[endcode]
+```
 
 Asegúrate de que el archivo `styles.css` exista en `src/main/resources/static/css/styles.css`. Thymeleaf y Spring Boot se encargarán de que la ruta `/css/styles.css` sea accesible para el navegador.

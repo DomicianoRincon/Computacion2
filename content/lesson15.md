@@ -1,9 +1,14 @@
-[t] Spring Data JPA: Paginación, Orden y Más
-[st] Introducción
+# Spring Data JPA: Paginación, Orden y Más
+
+## Introducción
+
 En la lección anterior, exploramos cómo crear consultas complejas basadas en los nombres de los métodos. Ahora, vamos a profundizar en funcionalidades más avanzadas que nos permitirán controlar la cantidad de resultados, el orden y cómo obtenerlos en "páginas".
-[st] Limitando Resultados con `First` y `Top`
+
+## Limitando Resultados con `First` y `Top`
+
 A veces, no necesitas todos los resultados que coinciden con una consulta, sino solo el primero o un número específico de ellos. Spring Data JPA lo hace muy fácil con las palabras clave `First` y `Top`.
-[code:java]
+
+```java
 package com.example.myapp.repository;
 
 import com.example.myapp.model.Course;
@@ -22,23 +27,29 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
     // Obtiene los 3 cursos del profesor "Juan Perez"
     List<Course> findFirst1ByProfessor_Name(String professorName);
 }
-[endcode]
+```
+
 *   `findFirst...`: Devuelve un solo objeto, idealmente envuelto en un `Optional`.
 *   `findTopN...`: Devuelve una `List` con un máximo de `N` resultados.
 Basado en nuestro `data.sql`, `findTop2ByOrderByCreditsDesc()` devolvería "Anatomia Humana" y "Fisiologia", ambos con 5 créditos.
-[st] Consultas de Rango con `Between`
+
+## Consultas de Rango con `Between`
+
 Ya lo vimos brevemente en los ejercicios, pero `Between` es muy útil para buscar dentro de un rango, aplicable a números, fechas y cadenas.
 
-[code:java]
+```java
 // En CourseRepository
 // Encuentra cursos cuyos créditos estén entre 3 y 4
 List<Course> findByCreditsBetween(int minCredits, int maxCredits);
-[endcode]
+```
+
 Al llamar a `courseRepository.findByCreditsBetween(3, 4)`, obtendríamos una lista de cursos que incluye "Derecho Penal", "Derecho Civil", "Historia del Arte", "Introducción a la Programación" y "Estructuras de Datos".
-[st] Ordenamiento Explícito con `OrderBy`
+
+## Ordenamiento Explícito con `OrderBy`
+
 Aunque `First` y `Top` a menudo se combinan con `OrderBy`, esta última se puede usar de forma independiente para garantizar que los resultados de cualquier consulta vengan en un orden predecible.
 
-[code:java]
+```java
 // En CourseRepository
 
 // Encuentra todos los cursos de un profesor, ordenados por nombre del curso de forma descendente
@@ -46,15 +57,17 @@ List<Course> findByProfesorNameOrderByNameDesc(String professorName);
 
 // Encuentra todos los cursos con 4 créditos, ordenados por nombre ascendente
 List<Course> findByCreditsOrderByNameAsc(int credits);
-[endcode]
+```
 
-[st] Paginación con `Pageable`
+## Paginación con `Pageable`
+
 Para aplicaciones reales, devolver cientos o miles de resultados en una sola consulta es ineficiente y poco práctico. La solución es la paginación: devolver un subconjunto de resultados (una "página") a la vez. Spring Data JPA lo integra de manera brillante a través de la interfaz `Pageable`.
 
-[st] 1. Modificar el Repositorio
+## 1. Modificar el Repositorio
+
 Para habilitar la paginación, simplemente añade un parámetro de tipo `Pageable` al final de tu método de consulta. El tipo de retorno debe cambiar de `List<T>` a `Page<T>`.
 
-[code:java]
+```java
 package com.example.myapp.repository;
 
 import com.example.myapp.model.Course;
@@ -67,14 +80,15 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
     // Encuentra todos los cursos de un programa y devuelve los resultados paginados
     Page<Course> findByProfesorName(String professorName, Pageable pageable);
 }
-[endcode]
+```
 
 El objeto `Page` no solo contiene la lista de cursos para la página solicitada, sino también información total sobre la consulta: número total de elementos, número total de páginas, si es la primera o la última página, etc.
 
-[st] 2. Solicitar una Página
+## 2. Solicitar una Página
+
 En tu servicio o controlador, ahora puedes solicitar una página específica de datos. Para ello, se crea una instancia de `Pageable` usando `PageRequest.of()`.
 
-[code:java]
+```java
 package com.example.myapp.services;
 
 import com.example.myapp.model.Course;
@@ -100,12 +114,13 @@ public class CourseService {
         return courseRepository.findByProfesorName(professorName, pageable);
     }
 }
-[endcode]
+```
 
-[st] 3. Exponerlo en un Controlador
+## 3. Exponerlo en un Controlador
+
 Un controlador podría recibir los parámetros de página y tamaño desde la URL.
 
-[code:java]
+```java
 package com.example.myapp.controllers;
 
 import com.example.myapp.model.Course;
@@ -127,12 +142,13 @@ public class CourseController {
         return courseService.getCoursesByProfessor("Juan Perez", 0, 3);
     }
 }
-[endcode]
+```
 
-[st] Recursos
+## Recursos
+
 El siguiente `data.sql` tiene 50 cursos distribuidos entre 10 profesores. Úsalo para tener suficientes datos y poder ver la paginación en acción.
 
-[code:sql]
+```sql
 -- 10 Profesores
 INSERT INTO professor (name) VALUES ('Juan Perez');
 INSERT INTO professor (name) VALUES ('Maria Rodriguez');
@@ -215,4 +231,4 @@ INSERT INTO course (name, credits, professor_id) VALUES ('Macroeconomia', 3, 10)
 INSERT INTO course (name, credits, professor_id) VALUES ('Economia Internacional', 3, 10);
 INSERT INTO course (name, credits, professor_id) VALUES ('Finanzas Corporativas', 4, 10);
 INSERT INTO course (name, credits, professor_id) VALUES ('Contabilidad General', 3, 10);
-[endcode]
+```

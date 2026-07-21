@@ -1,10 +1,16 @@
-[t] Renderizando Objetos y Listas en React
+# Renderizando Objetos y Listas en React
+
 En esta lección, veremos cómo usar los hooks `useState` y `useEffect` para solicitar datos (un objeto y una lista de objetos) a una API y renderizarlos en nuestros componentes de React.
-[st] Renderizando un Único Objeto
+
+## Renderizando un Único Objeto
+
 Para obtener y mostrar un único objeto, como un perfil de usuario, combinamos `useState` para almacenar los datos del perfil y `useEffect` para realizar la llamada a la API una sola vez, cuando el componente se monta.
-[st] Componente de Perfil de Usuario
+
+## Componente de Perfil de Usuario
+
 Este componente obtiene los datos de un perfil desde una API simulada y los muestra.
-[code:jsx]
+
+```jsx
 import React, { useState, useEffect } from 'react';
 
 // Componente para mostrar el perfil de un usuario
@@ -53,12 +59,17 @@ const UserProfile = () => {
 };
 
 export default UserProfile;
-[endcode]
-[st] Renderizando una Lista de Objetos
+```
+
+## Renderizando una Lista de Objetos
+
 El patrón es muy similar para una lista. Usamos `useState` para guardar un array de datos y `useEffect` para la llamada a la API. Luego, usamos el método `.map()` para transformar cada objeto del array en un elemento de React.
-[st] Componente de Lista de Estudiantes
+
+## Componente de Lista de Estudiantes
+
 Este componente obtiene una lista de estudiantes y la renderiza.
-[code:jsx]
+
+```jsx
 import React, { useState, useEffect } from 'react';
 
 // Componente para mostrar una lista de estudiantes
@@ -109,7 +120,7 @@ const StudentList = () => {
   );
 };  
 export default StudentList;
-[endcode]
+```
 
 `Punto Clave`
 Al renderizar una lista con `.map()`, es fundamental proporcionar una prop `key` única a cada elemento raíz de la lista (en este caso, el `<li>`). React usa esta `key` para identificar qué elementos han cambiado, se han agregado o eliminado, optimizando así el rendimiento.

@@ -1,8 +1,10 @@
-[t] Sesión 3 · 5 de Agosto
+# Sesión 3 · 5 de Agosto
+
 Mayoriatariamente hicimos la configuración del ambiente de ejecución al instalar Tomcat y maven.
 
 Hicimos un proyecto maven con este `pom.xml`
-[code:xml]
+
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -29,11 +31,11 @@ Hicimos un proyecto maven con este `pom.xml`
     </properties>
 
 </project>
-[endcode]
+```
 
 Y este servlet
 
-[code:java]
+```java
 package org.example.servlets;
 
 import jakarta.servlet.ServletException;
@@ -53,14 +55,16 @@ public class MiPrimerServlet extends HttpServlet {
         resp.getWriter().println("<h1>Este es un servlet "+new Date() +"</h1>");
     }
 }
-[endcode]
+```
 
 Cada vez que quería probar los cambios en el servlet usaba `mvn clean package`. Esto produce un `war` que es la aplicación web empaquetada. Ese paquete llamado por ejemplo `miapp.war` lo copio y pego en la carpeta `webapps`. Si el Servidor de Apps está en ejecución automaticamente descomprime el war generando una carpeta llamada `miapp`.
 
 Para probar usé la URL
-[code:plain]
+
+```plain
 http://localhost:8080/miapp/hello
-[endcode]
+```
 
 Finalmente usamos los comando `ssh` y `scp`. Para mayor información mire el enlace
-[link](SSH y SCP) https://i2thub.icesi.edu.co:5443/compu2/lesson/6
+
+[SSH y SCP](https://i2thub.icesi.edu.co:5443/compu2/lesson/6)

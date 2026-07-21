@@ -1,20 +1,24 @@
-[t] Introducción
+# Introducción
+
 Luego de tener una configuración simple con el servidor de aplicaciones Tomcat, vamos a integrar el Spring Framework al proyecto.
 Antes, vamos a poner los puntos sobre las íes, conceptualmente.
-[st] Ciclo de vida de un Servlet
+
+## Ciclo de vida de un Servlet
+
 Todo servidor de aplicaciones Java contiene un Servlet Container, que es el componente encargado de gestionar el ciclo de vida de los servlets.
 Un servlet es una clase de Java que extiende las capacidades de un servidor web al manejar peticiones y respuestas HTTP.
 
 El servlet container de Tomcat se llama `Catalina`. Este container crea una única instancia de cada Servlet y la reutiliza. Para cada solicitud del cliente, el Servlet Container genera un nuevo hilo que ejecuta el método `service()`, el cual redirige a `doGet()`, `doPost()`, u otro método según el tipo de petición. La instancia del servlet es inicializada una sola vez mediante el método `init()`.
 
-[i]image6.png|Ciclo de vida de un Servlet
+![Ciclo de vida de un Servlet](image6.png)
 
 Finalmente, `destroy()` se ejecuta una sola vez, justo antes de que el servlet sea eliminado, lo que ocurre cuando el servidor se apaga o el servlet es descargado.
 
+## Crear un Servlet básico
 
-[st] Crear un Servlet básico
 Reuerde que podemos crear un servlet que responda a solicitudes de tipo `GET` de esta manera.
-[code:java]
+
+```java
 package com.icesi.webappexample.servlet;
 
 import jakarta.servlet.annotation.WebServlet;
@@ -31,5 +35,4 @@ public class ServletExample extends HttpServlet {
         resp.getWriter().println("<h1>Este es un servlet<h1>");
     }
 }
-[endcode]
-
+```

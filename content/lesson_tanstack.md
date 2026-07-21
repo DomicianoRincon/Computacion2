@@ -1,12 +1,12 @@
-[t] Introduccion a TanStack Query
+# Introduccion a TanStack Query
 
 TanStack Query (antes conocido como React Query) es una libreria para manejar el estado del servidor en aplicaciones React. Su propuesta es sencilla: en lugar de usar `useState` + `useEffect` para hacer fetch de datos, usas hooks declarativos que se encargan automaticamente de la carga, el error, el cache y la sincronizacion.
 
-[st] El problema que resuelve
+## El problema que resuelve
 
 Sin TanStack Query, el patron tipico para obtener datos de una API se ve asi:
 
-[code:js]
+```js
 const [usuarios, setUsuarios] = useState([]);
 const [loading, setLoading] = useState(true);
 const [error, setError] = useState(null);
@@ -17,21 +17,21 @@ useEffect(() => {
     .catch(err => setError(err))
     .finally(() => setLoading(false));
 }, []);
-[endcode]
+```
 
 Este bloque se repite en cada componente que necesite datos. TanStack Query lo reemplaza con un solo hook y ademas agrega cache, reintentos automaticos y sincronizacion entre componentes.
 
-[st] Instalacion
+## Instalacion
 
-[code:sh]
+```sh
 npm install @tanstack/react-query
-[endcode]
+```
 
-[st] Configuracion inicial
+## Configuracion inicial
 
 Envuelve tu aplicacion con `QueryClientProvider` en el archivo principal (`main.jsx`):
 
-[code:jsx]
+```jsx
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import App from './App';
 
@@ -42,15 +42,15 @@ createRoot(document.getElementById('root')).render(
     <App />
   </QueryClientProvider>
 );
-[endcode]
+```
 
 `QueryClient` es el objeto que gestiona el cache global de la aplicacion. Solo se crea una vez.
 
-[st] useQuery: leer datos
+## useQuery: leer datos
 
 `useQuery` sirve para hacer peticiones GET. Recibe una `queryKey` (identificador unico del cache) y una funcion que retorna la promesa con los datos:
 
-[code:jsx]
+```jsx
 import { useQuery } from '@tanstack/react-query';
 import api from '@/services/api';
 
@@ -69,15 +69,15 @@ function ListaUsuarios() {
     </ul>
   );
 }
-[endcode]
+```
 
 La `queryKey` es el identificador del cache. Si dos componentes usan la misma key, comparten los datos sin hacer dos peticiones.
 
-[st] useMutation: crear, editar o eliminar
+## useMutation: crear, editar o eliminar
 
 `useMutation` sirve para peticiones que modifican datos (POST, PUT, DELETE). Despues de una mutacion exitosa se puede invalidar la query correspondiente para que los datos se actualicen automaticamente:
 
-[code:jsx]
+```jsx
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/services/api';
 
@@ -101,18 +101,16 @@ function CrearUsuario() {
     </button>
   );
 }
-[endcode]
+```
 
 `invalidateQueries` marca el cache de `['usuarios']` como desactualizado, y TanStack Query vuelve a hacer el fetch automaticamente en el componente que usa esa query.
 
-[st] Estados disponibles
+## Estados disponibles
 
 Los hooks exponen varios booleanos para manejar la UI segun el estado de la peticion:
 
-[list]
-`isLoading` — true la primera vez que se carga, cuando no hay datos en cache.
-`isFetching` — true cada vez que hay una peticion en curso (incluyendo refetches).
-`isError` — true si la peticion fallo.
-`isSuccess` — true si los datos se obtuvieron correctamente.
-`isPending` — en mutaciones, true mientras la peticion esta en vuelo.
-[endlist]
+- `isLoading` — true la primera vez que se carga, cuando no hay datos en cache.
+- `isFetching` — true cada vez que hay una peticion en curso (incluyendo refetches).
+- `isError` — true si la peticion fallo.
+- `isSuccess` — true si los datos se obtuvieron correctamente.
+- `isPending` — en mutaciones, true mientras la peticion esta en vuelo.

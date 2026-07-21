@@ -1,12 +1,12 @@
-[t] Skills en Herramientas de IA
+# Skills en Herramientas de IA
 
-[st] ¿Qué es una Skill?
+## ¿Qué es una Skill?
 
 Una skill es un módulo de comportamiento especializado que le "enseñas" a tu herramienta de IA para que adopte un rol o metodología concreta cuando se lo pidas. En vez de describir cada vez cómo debe responder, escribes la skill una sola vez y la activas con un slash command.
 
 Piénsalo como un perfil de trabajo recargable. El mismo LLM puede comportarse como un redactor técnico, un revisor de seguridad, o un escritor de specs — según qué skill esté activa en esa conversación.
 
-[svg]
+```svg
 <svg xmlns="http://www.w3.org/2000/svg" width="560" height="200" font-family="Roboto, Arial, sans-serif" font-size="13">
   <defs>
     <marker id="sk1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
@@ -34,13 +34,13 @@ Piénsalo como un perfil de trabajo recargable. El mismo LLM puede comportarse c
   <text x="440" y="130" text-anchor="middle" fill="white" font-size="11">y assumptions visibles</text>
   <text x="280" y="185" text-anchor="middle" fill="#888" font-size="12">La skill modifica el comportamiento del LLM vía system prompt</text>
 </svg>
-[endsvg]
+```
 
-[st] Estructura de una Skill
+## Estructura de una Skill
 
 Una skill vive en un archivo `SKILL.md` dentro de una carpeta con el nombre de la skill. Tiene dos partes: un frontmatter YAML con metadatos para que el LLM sepa cuándo activarla, y el cuerpo con el prompt de sistema que define el comportamiento.
 
-[code:plain]
+```plain
 ---
 name: nombre-de-la-skill
 description: >
@@ -53,54 +53,52 @@ description: >
 Aquí va el prompt de sistema completo. Le dice al LLM cómo
 debe comportarse, qué formato de respuesta usar, qué
 restricciones respetar, qué artefactos producir, etc.
-[endcode]
+```
 
-[st] Instalar una Skill en Claude Code
+## Instalar una Skill en Claude Code
 
 Claude Code busca skills en dos ubicaciones:
 
-[list]
-Global: `~/.claude/skills/` — disponible en cualquier proyecto
-Por proyecto: `.claude/skills/` — solo en ese directorio
-[endlist]
+- Global: `~/.claude/skills/` — disponible en cualquier proyecto
+- Por proyecto: `.claude/skills/` — solo en ese directorio
 
 La estructura de carpetas es:
 
-[code:bash]
+```bash
 .claude/
 └── skills/
     └── spec-writer/
         └── SKILL.md
-[endcode]
+```
 
 Para activar la skill en una conversación, usas el slash command con el nombre de la carpeta:
 
-[code:bash]
+```bash
 /spec-writer Agrega exportación de pedidos como CSV
-[endcode]
+```
 
 Claude inyecta el contenido de `SKILL.md` como system prompt adicional antes de responder. El LLM adopta el rol definido en la skill durante esa invocación.
 
-[st] Instalar una Skill en Gemini CLI
+## Instalar una Skill en Gemini CLI
 
 Gemini CLI usa exactamente la misma convención de `SKILL.md`, pero bajo la carpeta `.gemini/`:
 
-[code:bash]
+```bash
 .gemini/
 └── skills/
     └── spec-writer/
         └── SKILL.md
-[endcode]
+```
 
 Para vincular la skill al workspace de Gemini, ejecutas:
 
-[code:bash]
+```bash
 gemini skills link ./skills/spec-writer --scope workspace
-[endcode]
+```
 
 El flag `--scope workspace` hace que la skill quede disponible para todos los proyectos del workspace actual.
 
-[svg]
+```svg
 <svg xmlns="http://www.w3.org/2000/svg" width="540" height="200" font-family="Roboto, Arial, sans-serif" font-size="13">
   <defs>
     <marker id="sk2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
@@ -128,13 +126,13 @@ El flag `--scope workspace` hace que la skill quede disponible para todos los pr
   <text x="80" y="170" text-anchor="middle" fill="#888" font-size="11">dos herramientas</text>
   <text x="270" y="190" text-anchor="middle" fill="#888" font-size="12">El mismo SKILL.md funciona en Claude Code y Gemini CLI</text>
 </svg>
-[endsvg]
+```
 
-[st] Skill de ejemplo: spec-writer
+## Skill de ejemplo: spec-writer
 
 A continuación la skill `spec-writer` completa. Al activarla, el LLM convierte cualquier descripción vaga de feature en tres artefactos estructurados: Spec funcional, Plan técnico y Tasks ordenadas.
 
-[code:plain]
+```plain
 ---
 name: spec-writer
 description: >
@@ -246,13 +244,13 @@ You generate:
 3. Tasks — in dependency order, each independently testable.
 4. Assumptions — e.g. async for >1,000 rows (HIGH), date range filter
    required (MEDIUM).
-[endcode]
+```
 
-[st] Cómo se instala paso a paso
+## Cómo se instala paso a paso
 
 Para tener la skill `spec-writer` disponible en Claude Code en tu proyecto:
 
-[code:bash]
+```bash
 # 1. Crear la estructura de carpetas
 mkdir -p .claude/skills/spec-writer
 
@@ -263,11 +261,11 @@ touch .claude/skills/spec-writer/SKILL.md
 # 3. Verificar que Claude la detecta
 # Abrir Claude Code en el proyecto y escribir:
 /spec-writer
-[endcode]
+```
 
 Para Gemini CLI en el mismo proyecto:
 
-[code:bash]
+```bash
 # 1. Crear la estructura de carpetas
 mkdir -p .gemini/skills/spec-writer
 
@@ -276,15 +274,13 @@ cp .claude/skills/spec-writer/SKILL.md .gemini/skills/spec-writer/SKILL.md
 
 # 3. Vincular la skill al workspace
 gemini skills link ./.gemini/skills/spec-writer --scope workspace
-[endcode]
+```
 
-[st] ¿Cuándo usar una Skill?
+## ¿Cuándo usar una Skill?
 
-[list]
-Cuando repites el mismo tipo de tarea constantemente (escribir specs, revisar PRs, generar tests).
-Cuando quieres que el LLM produzca un formato de respuesta específico y consistente.
-Cuando trabajas en equipo y quieres que todos obtengan el mismo comportamiento del LLM.
-Cuando el contexto o rol del LLM es demasiado largo para escribirlo en cada prompt.
-[endlist]
+- Cuando repites el mismo tipo de tarea constantemente (escribir specs, revisar PRs, generar tests).
+- Cuando quieres que el LLM produzca un formato de respuesta específico y consistente.
+- Cuando trabajas en equipo y quieres que todos obtengan el mismo comportamiento del LLM.
+- Cuando el contexto o rol del LLM es demasiado largo para escribirlo en cada prompt.
 
 Una skill bien escrita elimina la fricción de describir el "cómo" cada vez — te concentras solo en el "qué".

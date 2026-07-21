@@ -1,6 +1,6 @@
-[t] Skill para escritura de specs
+# Skill para escritura de specs
 
-[code:plain]
+```plain
 ---
 name: spec-writer
 description: >
@@ -112,11 +112,12 @@ You generate:
 3. Tasks — in dependency order, each independently testable.
 4. Assumptions — e.g. async for >1,000 rows (HIGH), date range filter
    required (MEDIUM).
-[endcode]
+```
 
-[st] Agregar un skill a Gemini
+## Agregar un skill a Gemini
 
 Apuntamos al folder con el nombre de la skill. El md de la skill se debe llamar `SKILL.md`
-[code:plain]
+
+```plain
 gemini skills link ./skills/spec-writer --scope workspace
-[endcode]
+```

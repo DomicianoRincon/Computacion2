@@ -1,8 +1,10 @@
-[t] Parámetros HTTP en Spring
-[st] Anatomía del HTTP Request
+# Parámetros HTTP en Spring
+
+## Anatomía del HTTP Request
+
 Los datos que el cliente envía al servidor pueden llegar por tres vías distintas en el mensaje HTTP.
 
-[svg]
+```svg
 <svg xmlns="http://www.w3.org/2000/svg" width="520" height="200" font-family="Roboto, monospace" font-size="12">
   <rect x="10" y="10" width="500" height="180" rx="8" fill="#1a1f2e" stroke="#333" stroke-width="1"/>
 
@@ -21,21 +23,23 @@ Los datos que el cliente envía al servidor pueden llegar por tres vías distint
   <text x="30" y="190" fill="#66BB6A" font-size="10">↑ @PathVariable: /42</text>
   <text x="210" y="190" fill="#42A5F5" font-size="10">↑ @RequestParam: ?notify=true</text>
 </svg>
-[endsvg]
+```
 
-[st] @PathVariable
+## @PathVariable
+
 `@PathVariable` extrae un segmento de la URL. Se usa cuando el identificador forma parte de la ruta del recurso.
 
-[code:java]
+```java
 @GetMapping("/{id}")
 public ResponseEntity<UsuarioDTO> getById(@PathVariable Long id) {
     return ResponseEntity.ok(usuarioService.findById(id));
 }
 // GET /usuarios/42  →  id = 42
-[endcode]
+```
 
 Puede tener múltiples variables en la misma ruta:
-[code:java]
+
+```java
 @GetMapping("/{cursoId}/estudiantes/{estudianteId}")
 public ResponseEntity<EstudianteDTO> getEstudiante(
     @PathVariable Long cursoId,
@@ -44,12 +48,13 @@ public ResponseEntity<EstudianteDTO> getEstudiante(
     return ResponseEntity.ok(cursoService.getEstudiante(cursoId, estudianteId));
 }
 // GET /cursos/5/estudiantes/12
-[endcode]
+```
 
-[st] @RequestParam
+## @RequestParam
+
 `@RequestParam` extrae parámetros del query string (`?clave=valor`). Se usa para filtros, búsquedas y paginación — datos opcionales que no identifican el recurso.
 
-[code:java]
+```java
 @GetMapping
 public ResponseEntity<List<UsuarioDTO>> getAll(
     @RequestParam(defaultValue = "0") int page,
@@ -59,37 +64,38 @@ public ResponseEntity<List<UsuarioDTO>> getAll(
     return ResponseEntity.ok(usuarioService.findAll(page, size, nombre));
 }
 // GET /usuarios?page=0&size=5&nombre=Juan
-[endcode]
+```
 
-[list]
-`defaultValue` — valor por defecto si el parámetro no viene en la URL.
-`required = false` — el parámetro es opcional; si no viene, llega como `null`.
-Sin opciones, el parámetro es obligatorio y lanza error si falta.
-[endlist]
+- `defaultValue` — valor por defecto si el parámetro no viene en la URL.
+- `required = false` — el parámetro es opcional; si no viene, llega como `null`.
+- Sin opciones, el parámetro es obligatorio y lanza error si falta.
 
-[st] @RequestBody
+## @RequestBody
+
 `@RequestBody` deserializa el cuerpo JSON del request a un objeto Java. Se usa en `POST`, `PUT` y `PATCH` para recibir los datos del recurso.
 
-[code:java]
+```java
 @PostMapping
 public ResponseEntity<UsuarioDTO> create(@RequestBody UsuarioDTO dto) {
     UsuarioDTO created = usuarioService.save(dto);
     return ResponseEntity.status(HttpStatus.CREATED).body(created);
 }
-[endcode]
+```
 
 El JSON que envía el cliente:
-[code:json]
+
+```json
 {
   "nombre": "Juan",
   "email": "juan@universidad.edu"
 }
-[endcode]
+```
 
 Spring usa Jackson para convertir automáticamente el JSON a la clase `UsuarioDTO`. Los nombres de los campos JSON deben coincidir con los atributos de la clase.
 
-[st] Comparativa: cuándo usar cada uno
-[svg]
+## Comparativa: cuándo usar cada uno
+
+```svg
 <svg xmlns="http://www.w3.org/2000/svg" width="520" height="200" font-family="Roboto, Arial, sans-serif" font-size="13">
   <rect x="10" y="10" width="500" height="180" rx="8" fill="#1a1f2e"/>
   <text x="30" y="38" fill="#aaa" font-size="12">ANOTACIÓN</text>
@@ -106,20 +112,20 @@ Spring usa Jackson para convertir automáticamente el JSON a la clase `UsuarioDT
   <text x="170" y="144" fill="#ddd">Cuerpo JSON del request</text>
   <text x="360" y="144" fill="#888">{"nombre": "Ana"}</text>
 </svg>
-[endsvg]
+```
 
-[st] Data Transfer Object (DTO)
+## Data Transfer Object (DTO)
+
 Un DTO encapsula los datos que se intercambian entre el cliente y el servidor. Separa la representación externa de la entidad interna de base de datos.
-[list]
-No exponga directamente sus entidades. Use DTOs para controlar qué datos se intercambian.
-Separe DTOs de entrada (`Request`) y de salida (`Response`) cuando la estructura difiera.
-Incluya solo los campos necesarios para cada operación.
-Evite lógica de negocio en los DTOs — solo atributos y constructores.
-Nombre los DTOs claramente: `UsuarioRequestDTO`, `UsuarioResponseDTO` o simplemente `UsuarioDTO`.
-Organice los DTOs en un paquete `dto` separado.
-[endlist]
 
-[code:java]
+- No exponga directamente sus entidades. Use DTOs para controlar qué datos se intercambian.
+- Separe DTOs de entrada (`Request`) y de salida (`Response`) cuando la estructura difiera.
+- Incluya solo los campos necesarios para cada operación.
+- Evite lógica de negocio en los DTOs — solo atributos y constructores.
+- Nombre los DTOs claramente: `UsuarioRequestDTO`, `UsuarioResponseDTO` o simplemente `UsuarioDTO`.
+- Organice los DTOs en un paquete `dto` separado.
+
+```java
 // DTO de entrada — lo que el cliente envía al servidor
 public class UsuarioRequestDTO {
     private String nombre;
@@ -136,13 +142,12 @@ public class UsuarioResponseDTO {
     // no incluye password
     // getters y setters
 }
-[endcode]
+```
 
-[st] Buenas prácticas
-[list]
-Siempre retorne `ResponseEntity` para tener control total del código HTTP.
-Use el código de estado correcto: `201` al crear, `204` al eliminar, `404` cuando no existe.
-Nunca exponga sus entidades directamente — use DTOs.
-Versione su API desde el inicio: `/api/v1/recursos`.
-Use `@PathVariable` para identificadores de recursos y `@RequestParam` para filtros opcionales.
-[endlist]
+## Buenas prácticas
+
+- Siempre retorne `ResponseEntity` para tener control total del código HTTP.
+- Use el código de estado correcto: `201` al crear, `204` al eliminar, `404` cuando no existe.
+- Nunca exponga sus entidades directamente — use DTOs.
+- Versione su API desde el inicio: `/api/v1/recursos`.
+- Use `@PathVariable` para identificadores de recursos y `@RequestParam` para filtros opcionales.

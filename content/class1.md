@@ -1,7 +1,10 @@
-[t] Sesión 1 · 29 de Julio
+# Sesión 1 · 29 de Julio
+
 Este fue el programa que creamos en la sesión 1
-[st] HTTP Server primitivo
-[code:java]
+
+## HTTP Server primitivo
+
+```java
 import java.io.*;
 import java.net.ServerSocket;
 
@@ -39,4 +42,4 @@ public class Main {
         server.close();
     }
 }
-[endcode]
+```

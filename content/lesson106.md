@@ -1,9 +1,12 @@
-[t] useContext
+# useContext
+
 El hook `useContext` de React permite a los componentes acceder a un estado compartido sin necesidad de pasar props manualmente a través de múltiples niveles del árbol de componentes, un problema conocido como "prop drilling". Es ideal para datos globales como el token de autenticación del usuario.
 
-[st] Creando el contexto de autenticación
+## Creando el contexto de autenticación
+
 El primer paso es crear el contexto y un provider que lo envuelva. En este ejemplo el contexto almacena el token de sesión del usuario.
-[code:js]
+
+```js
 import { createContext, useState, useContext } from "react";
 
 const AuthContext = createContext();
@@ -20,12 +23,15 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
   return useContext(AuthContext);
 };
-[endcode]
+```
+
 `AuthProvider` actúa como contenedor. Cualquier componente dentro de él puede acceder a `token` y `setToken` mediante el hook `useAuth`.
 
-[st] Envolviendo la aplicación
+## Envolviendo la aplicación
+
 Para que todos los componentes tengan acceso al contexto, envuelve la raíz de la aplicación con `AuthProvider` en `main.jsx`.
-[code:jsx]
+
+```jsx
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { AuthProvider } from "./context/AuthContext";
@@ -38,11 +44,13 @@ createRoot(document.getElementById("root")).render(
     </AuthProvider>
   </StrictMode>
 );
-[endcode]
+```
 
-[st] Usando el contexto en un componente
+## Usando el contexto en un componente
+
 Desde cualquier componente dentro del árbol, puedes leer y modificar el token con `useAuth`.
-[code:jsx]
+
+```jsx
 import { useAuth } from "../context/AuthContext";
 
 const ProfilePage = () => {
@@ -56,11 +64,13 @@ const ProfilePage = () => {
     </div>
   );
 };
-[endcode]
+```
 
-[st] Persistir el token en localStorage
+## Persistir el token en localStorage
+
 Para que la sesión sobreviva a un recargo de la página, sincronizamos el estado con `localStorage` usando `useEffect`.
-[code:jsx]
+
+```jsx
 import { createContext, useState, useEffect, useContext } from "react";
 
 const AuthContext = createContext();
@@ -88,5 +98,6 @@ export const AuthProvider = ({ children }) => {
 };
 
 export const useAuth = () => useContext(AuthContext);
-[endcode]
+```
+
 Con esta versión, si el usuario recarga la página el token se recupera automáticamente de `localStorage` y la sesión se mantiene activa.

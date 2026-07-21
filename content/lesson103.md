@@ -1,9 +1,12 @@
-[t] Rutas Protegidas con ProtectedRoute
+# Rutas Protegidas con ProtectedRoute
+
 En aplicaciones reales, ciertas rutas solo deben ser accesibles para usuarios autenticados. El patrón `ProtectedRoute` es un componente que actúa como guardia: verifica si el usuario tiene un token válido en el `AuthContext` y, si no lo tiene, lo redirige automáticamente a la pantalla de login.
 
-[st] El componente ProtectedRoute
+## El componente ProtectedRoute
+
 `ProtectedRoute` lee el token del `AuthContext` definido en la lección anterior. Si el token existe, renderiza las rutas hijas mediante `<Outlet />`; si no existe, redirige a `/login`.
-[code:jsx]
+
+```jsx
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
@@ -18,12 +21,15 @@ const ProtectedRoute = () => {
 };
 
 export default ProtectedRoute;
-[endcode]
+```
+
 La prop `replace` evita que la redirección agregue una entrada al historial del navegador, impidiendo que el usuario quede atrapado al presionar "Atrás".
 
-[st] La pantalla de Login
+## La pantalla de Login
+
 La pantalla de login usa `setToken` del contexto para guardar el token, y `useNavigate` para redirigir al dashboard una vez autenticado.
-[code:jsx]
+
+```jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -57,11 +63,13 @@ const LoginScreen = () => {
 };
 
 export default LoginScreen;
-[endcode]
+```
 
-[st] Configurando el enrutador con ProtectedRoute
+## Configurando el enrutador con ProtectedRoute
+
 `ProtectedRoute` se usa como elemento padre en `createBrowserRouter`. Todas las rutas que sean hijas suyas quedarán protegidas automáticamente.
-[code:jsx]
+
+```jsx
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -93,12 +101,15 @@ function App() {
 }
 
 export default App;
-[endcode]
+```
+
 Cualquier ruta dentro de `children` de `ProtectedRoute` queda protegida. Agregar una ruta nueva al array no requiere ningún cambio adicional.
 
-[st] Cerrando sesión
+## Cerrando sesión
+
 Para cerrar sesión, llama `setToken(null)` desde cualquier componente con acceso al contexto. El `AuthContext` limpia el `localStorage` automáticamente.
-[code:jsx]
+
+```jsx
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { Button } from "@mui/material";
@@ -116,15 +127,14 @@ const LogoutButton = () => {
 };
 
 export default LogoutButton;
-[endcode]
+```
 
-[st] Flujo completo de autenticación
-[list]
-El usuario intenta acceder a `/` o cualquier ruta protegida.
-`ProtectedRoute` consulta `token` en el `AuthContext`.
-Si no hay token → redirige a `/login`.
-El usuario ingresa sus datos y `LoginScreen` llama a `setToken`.
-`AuthContext` sincroniza el token con `localStorage` automáticamente.
-`ProtectedRoute` detecta el token y permite el acceso a las rutas hijas.
-Al cerrar sesión, `setToken(null)` borra el token del contexto y del `localStorage`.
-[endlist]
+## Flujo completo de autenticación
+
+- El usuario intenta acceder a `/` o cualquier ruta protegida.
+- `ProtectedRoute` consulta `token` en el `AuthContext`.
+- Si no hay token → redirige a `/login`.
+- El usuario ingresa sus datos y `LoginScreen` llama a `setToken`.
+- `AuthContext` sincroniza el token con `localStorage` automáticamente.
+- `ProtectedRoute` detecta el token y permite el acceso a las rutas hijas.
+- Al cerrar sesión, `setToken(null)` borra el token del contexto y del `localStorage`.

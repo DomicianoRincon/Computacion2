@@ -1,16 +1,18 @@
-[t] Query Methods en Spring Data JPA
+# Query Methods en Spring Data JPA
 
-[link] (Spring Data JPA — Query Methods) https://docs.spring.io/spring-data/jpa/reference/jpa/query-methods.html
+[Spring Data JPA — Query Methods](https://docs.spring.io/spring-data/jpa/reference/jpa/query-methods.html)
 
-[st] ¿Qué son los Query Methods?
+## ¿Qué son los Query Methods?
+
 Spring Data JPA ofrece una funcionalidad poderosa llamada "Query Methods" (o métodos de consulta). Permite crear consultas a la base de datos de forma automática simplemente declarando métodos en tus interfaces de repositorio.
 
 Spring analiza el nombre del método, lo divide en partes y lo traduce a una consulta JPQL (Java Persistence Query Language). Esto nos ahorra el trabajo de escribir consultas manualmente para la mayoría de los casos de uso comunes. La convención sigue el formato `findBy...`, `readBy...`, `countBy...`, y `getBy...`, seguido de las propiedades de la entidad.
 
-[st] Preparando el Modelo
+## Preparando el Modelo
+
 Para nuestros ejemplos, asumiremos que la entidad `Course` ha sido actualizada para incluir un campo `credits` y la relación con `Profesor` que vimos en lecciones anteriores. 
 
-[code:java]
+```java
 package com.example.myapp.model;
 
 import jakarta.persistence.*;
@@ -37,12 +39,13 @@ public class Course {
 
     // Constructores, getters y setters
 }
-[endcode]
+```
 
-[st] Ejemplos Básicos
+## Ejemplos Básicos
+
 Vamos a añadir algunos métodos a nuestro `CourseRepository`.
 
-[code:java]
+```java
 package com.example.myapp.repository;
 
 import com.example.myapp.model.Course;
@@ -60,32 +63,37 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
     // Encuentra cursos con un número de créditos mayor que el valor proporcionado
     List<Course> findByCreditsGreaterThan(int credits);
 }
-[endcode]
+```
 
-[st] Consultas a través de Relaciones
+## Consultas a través de Relaciones
+
 La verdadera potencia de los Query Methods se ve cuando navegamos a través de las relaciones entre entidades. Spring Data JPA se encarga de generar los `JOIN` necesarios automáticamente.
 
-[st] 1. Encontrar Cursos por el Nombre del Profesor
+## 1. Encontrar Cursos por el Nombre del Profesor
+
 Podemos encontrar todos los cursos impartidos por un profesor específico sin necesidad de tocar el `ProfesorRepository`.
 
-[code:java]
+```java
 // En CourseRepository
 List<Course> findByProfesorName(String professorName);
-[endcode]
+```
+
 Spring entiende que debe navegar desde `Course` a la entidad `Profesor` (`findByProfesor...`) y luego filtrar por la propiedad `name` de esa entidad (`...Name`).
 
-[st] 2. Contar Cursos de un Profesor
+## 2. Contar Cursos de un Profesor
+
 De manera similar, podemos contar cuántos cursos tiene asignados un profesor.
 
-[code:java]
+```java
 // En CourseRepository
 long countByProfesorName(String professorName);
-[endcode]
+```
 
-[st] 3. Encontrar Estudiantes por Curso
+## 3. Encontrar Estudiantes por Curso
+
 Gracias a nuestra estructura de entidades, podemos hacer una consulta muy potente para encontrar todos los estudiantes inscritos en un curso con un nombre específico. ¡Esto lo hacemos directamente desde el `StudentRepository`!
 
-[code:java]
+```java
 package com.example.myapp.repository;
 
 import com.example.myapp.model.Student;
@@ -97,12 +105,15 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
     // Encuentra estudiantes inscritos en un curso con un nombre específico
     List<Student> findByStudentCourses_Course_Name(String courseName);
 }
-[endcode]
+```
+
 Aquí, Spring navega `Student` -> `studentCourses` (la lista de `StudentCourse`) -> `course` (la entidad `Course` dentro de `StudentCourse`) -> `name` (el nombre del `Course`).
-[st] Datos de Prueba
+
+## Datos de Prueba
+
 Para que los siguientes ejercicios vamos a engrosar un poco nuestros `data.sql`
 
-[code:sql]
+```sql
 -- Insertar 5 Profesores
 INSERT INTO professors (name) VALUES ('Juan Perez'), ('Maria Rodriguez'), ('Carlos Gomez'), ('Ana Martinez'), ('Luis Hernandez');
 
@@ -133,9 +144,10 @@ INSERT INTO students_courses (student_id, course_id) VALUES (4, 5), (4, 8); -- S
 INSERT INTO students_courses (student_id, course_id) VALUES (5, 7); -- David (Arquitectura) en Dibujo Tecnico
 INSERT INTO students_courses (student_id, course_id) VALUES (6, 8); -- Valentina (Diseño) en Historia del Arte
 INSERT INTO students_courses (student_id, course_id) VALUES (7, 3); -- Camila (Medicina) en Anatomia
-[endcode]
+```
 
-[t] Tarea 2
+# Tarea 2
+
 Ahora es tu turno. Añade los siguientes métodos a los repositorios correspondientes y pruébalos.
 
 1.  En `StudentRepository`
@@ -169,6 +181,6 @@ Encuentra todos los estudiantes que están viendo cursos con un profesor especí
 
 Habilite esta bandera para ver la operación SQL subyacente
 
-[code:ini]
+```ini
 spring.jpa.show-sql=true
-[endcode]
+```

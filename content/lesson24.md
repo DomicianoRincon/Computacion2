@@ -1,13 +1,16 @@
-[t] Autenticación y Autorización
+# Autenticación y Autorización
+
 La autenticación es el proceso mediante el cual el sistema verifica la identidad de un usuario, servicio o dispositivo, normalmente a través de credenciales como contraseñas, tokens, certificados o datos biométricos, asegurándose de que quien intenta acceder es realmente quien dice ser. 
 
 La autorización, en cambio, ocurre después de la autenticación y consiste en determinar qué acciones, recursos o información tiene permitido usar ese usuario dentro del sistema, según los roles, permisos o políticas asignadas. En conjunto, autenticación responde a la pregunta “¿quién sos?”, mientras que autorización responde a “¿qué podés hacer?”.
 
-[st] Registro de usuarios
+## Registro de usuarios
+
 Para dar de alta a un usuario, debemos insertar el registro en la tabla `User`. Para lograrlo, grosso modo, hay que elaborar una plantilla `signup.html`con Thymeleaf para dar de alta al usuario. Luego, definir la ruta `/signup` como pública para permitir a un usuario registrarse.
 
 En Service desarrolle un método de almacenamiento del usario donde guarde la constraseña hasheada. No la contraseña legible. Vamos entonces a definir un `BCryptPasswordEncoder` como `PasswordEncoder`.
-[code:java]
+
+```java
 @Configuration
 public class WebSecurityConfig {
 
@@ -17,13 +20,17 @@ public class WebSecurityConfig {
     }
     
 }
-[endcode]
+```
+
 `BCrypt` es un algoritmo de hashing. 
-[st] SecurityFilterChain
+
+## SecurityFilterChain
+
 Como sabe, cuando usamos Spring Boot Security, por defecto todas la rutas de la applicación web estarán protegidas de modo que solo clientes autenticado podrán hacer request.
 
 Esto lo podemos cambiar por medio de un `SecurityFilterChain`.
-[code:java]
+
+```java
 @Configuration 
 @EnableWebSecurity
 public class WebSecurityConfig {
@@ -41,7 +48,7 @@ public class WebSecurityConfig {
     }
     ...
 }
-[endcode]
+```
 
 Observe que usamos el método `authorizeHttpRequest` que recibe un lambda. Este nos permite definir qué rutas son públicas (por medio de `permitAll()`) y qué rutas requieren autenticación (por medio de `authenticated()`).
 
@@ -49,7 +56,7 @@ Podemos definir `signup` como ruta publica con `requestMatchers("/signup")`
 
 Adicionalmente si requiere varios securityFilterChain, por ejemplo, uno para la consola H2 y otro para el resto de la aplicación, use los órdenes
 
-[code:java]
+```java
 @Configuration @EnableWebSecurity
 public class WebSecurityConfig {
     @Bean
@@ -64,9 +71,11 @@ public class WebSecurityConfig {
         ...
     }
 }
-[endcode]
+```
+
 En este caso requerimos que todas las rutas que dependen de h2 tengan acceso sin la autenticación propia de la aplicación. Cuando queremos referenciar a un conjunto de request y no a toda la aplicación, podemos usar `requestMatchers`
-[code:java]
+
+```java
 @Bean
 @Order(1)
 public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -83,11 +92,13 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
         );
         return http.build();
 }
-[endcode]
+```
+
 En este caso `toH2Console()` devuelve la ruta configurada hacia la consola de h2
 
 Finalmente, usted puede ofrecer al usuario un login por defecto usando en la últmo filterchain usando el método .withDefaults().
-[code:java]
+
+```java
 @Bean
 @Order(2)
 public SecurityFilterChain appSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -99,24 +110,30 @@ public SecurityFilterChain appSecurityFilterChain(HttpSecurity http) throws Exce
             ).formLogin(Customizer.withDefaults()); //<--- Quítelo y observe qué pasa
         return http.build();
 }
-[endcode]
+```
 
-[st] Permitiendo registro público
+## Permitiendo registro público
+
 Ya que conoce lo escencial de las reglas de seguridad, aplique una regla que de acceso libre a su ruta de registro.
 
 Una vez conseguido, almacene el usuario, pero con contraseña hasheada
 
-[st] Información de prueba
+## Información de prueba
+
 Vamos a actualizar los 2 usuarios con contraseña `123456` usando `BCrypt`.
-[code:sql]
+
+```sql
 -- Insertar usuarios
 INSERT INTO users (id, email, password)
 VALUES (estudiante@gmail.com', '$2a$12$LE5wWF2zJKLfE98E4KgJPO.buVfS0xHlSg2F2ciQMnk5kdgEBx506'),
        ('profesor@gmail.com', '$2a$12$LE5wWF2zJKLfE98E4KgJPO.buVfS0xHlSg2F2ciQMnk5kdgEBx506');
-[endcode]
-[st] Login personalizado
+```
+
+## Login personalizado
+
 Si usted piensa "Qué login tan feo el que da springboot", este apartado es para usted. Cree un plantilla de `login.html`.
-[code:java]
+
+```java
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -131,13 +148,15 @@ public class SecurityConfig {
         return http.build();
     }
 }
-[endcode]
+```
+
 En este caso se utiliza `formLogin` que recibe un lambda. Este permite definir la `loginPage`, la `defaultSuccessUrl` y definir si es público por medio de `permitAll`.
 
 En el caso de `defaultSuccessUrl` la bandera en true permite que siempre redirija a `/home` sin importar la ruta a la que inicialmente se dirigía el usuario.
 
 Su login debe tener al menos este form
-[code:html]
+
+```html
 <form th:action="@{/auth/login}" method="post">
     <input type="text" id="username" name="username" required>
     <input type="password" id="password" name="password" required>
@@ -151,12 +170,15 @@ Su login debe tener al menos este form
         <p style="color: green;">Has cerrado sesión correctamente</p>
     </div>
 </form>
-[endcode]
+```
+
 Note que se nombran las variables `username` y `password`. Además se accede a variables de Request Param como `error` y `logout` en caso de username o password incorrectos y cierre de sesión respectivamente.
 
-[st] Acceder a mis propios detalles
+## Acceder a mis propios detalles
+
 Podemos acceder a los detalles del usuario autenticado a través del objeto autentication.
-[code:java]
+
+```java
 @GetMapping("/profile")
 public String profile(Model model, Authentication authentication) {
     // authentication viene inyectado por Spring
@@ -165,10 +187,11 @@ public String profile(Model model, Authentication authentication) {
     model.addAttribute("authorities", user.getAuthorities());
     return "auth/profile";
 }
-[endcode]
+```
+
 A partir de esto, usted puede usar el nombre o authorities para rederizarlo en la aplicación
 
-[code:html]
+```html
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -185,21 +208,25 @@ A partir de esto, usted puede usar el nombre o authorities para rederizarlo en l
 </ul>
 </body>
 </html>
-[endcode]
+```
 
 Tambien podemos interactuar con los elementos de autenticación por medio de acceso estático
-[code:java]
+
+```java
 @GetMapping("/profile")
 public String profile() {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     CustomUserDetails user = (CustomUserDetails) auth.getPrincipal();
 }
-[endcode]
+```
+
 O si solo necesito el UserDetails
-[code:java]
+
+```java
 @GetMapping("/profile")
 public String profile(@AuthenticationPrincipal CustomUserDetails user) {
     String username = user.getUsername();
 }
-[endcode]
+```
+
 .

@@ -1,8 +1,10 @@
-[t] Postgres y docker
+# Postgres y docker
+
 Tiene la opción de instalar postgres en su máquina o crear una instancia de la base de datos usando Docker.
 
-[st] Usando Docker para la base de datos
-[code:yml]
+## Usando Docker para la base de datos
+
+```yml
 services:
   db:
     image: postgres:17
@@ -20,9 +22,10 @@ services:
 
 volumes:
   my-volume:
-[endcode]
+```
 
 Para crear el contenedor ejecuta:
-[code:sh]
+
+```sh
 docker-compose up -d
-[endcode] 
+```

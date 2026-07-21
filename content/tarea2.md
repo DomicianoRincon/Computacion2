@@ -1,5 +1,5 @@
+# Tarea 2
 
-[t] Tarea 2
 Ahora es tu turno. Añade los siguientes métodos a los repositorios correspondientes y pruébalos con los datos de prueba.
 
 1. En `StudentRepository`: Encuentra un estudiante por su código único.
@@ -32,5 +32,6 @@ Ahora es tu turno. Añade los siguientes métodos a los repositorios correspondi
 
 15. En `PermissionRepository`: Encuentra todos los permisos asignados a un usuario por username
 
-[st] Classroom
+## Classroom
+
 https://classroom.github.com/a/xJAG1tcz

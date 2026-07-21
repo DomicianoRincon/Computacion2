@@ -1,5 +1,6 @@
-[t] Ejercicio 2
-[mermaid]
+# Ejercicio 2
+
+```mermaid
 erDiagram
 
     PLAYABLE_CHARACTER ||--o{ GAME_SESSION : player1
@@ -25,9 +26,9 @@ erDiagram
         int score
         int game_session_id
     }
-[endmermaid]
+```
 
-[code:java]
+```java
 import jakarta.persistence.*;
 import java.util.List;
 
@@ -86,12 +87,11 @@ public class Delivery {
     @JoinColumn(name = "game_session_id")
     private GameSession gameSession;
 }
-[endcode]
+```
 
-[st] Consultas
-[list]
-Devolver la lista de partidas en las que el jugador que actúa como player1 tiene un nombre específico dado como parámetro.
-Listar las partidas que contienen al menos una entrega cuyo puntaje sea mayor a un valor dado.
-Obtener la lista de partidas en las que el jugador en el rol de player1 tenga un nombre específico o exista al menos una entrega asociada a la partida con un puntaje superior a un valor dado
-Obtener la lista de partidas en las que el jugador en el rol de player1 tenga un nombre específico y además exista al menos una entrega asociada a la partida con un puntaje superior a un valor dado.
-[endlist]
+## Consultas
+
+- Devolver la lista de partidas en las que el jugador que actúa como player1 tiene un nombre específico dado como parámetro.
+- Listar las partidas que contienen al menos una entrega cuyo puntaje sea mayor a un valor dado.
+- Obtener la lista de partidas en las que el jugador en el rol de player1 tenga un nombre específico o exista al menos una entrega asociada a la partida con un puntaje superior a un valor dado
+- Obtener la lista de partidas en las que el jugador en el rol de player1 tenga un nombre específico y además exista al menos una entrega asociada a la partida con un puntaje superior a un valor dado.

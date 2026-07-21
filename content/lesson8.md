@@ -1,8 +1,12 @@
-[t] Relaciones de tabla 
+# Relaciones de tabla
+
 También podemos relacionar tablas para generar un modelo de datos. El ejemplo inicial es hacer una relación 1 a muchos.
-[st] Relación 1 a muchos
+
+## Relación 1 a muchos
+
 Por ejemplo vamos a adaptar la relación entre Profesores y Cursos. Un profesor puede dar varios cursos
-[code:java]
+
+```java
 @Entity
 @Table(name = "profesor")
 public class Profesor {
@@ -14,9 +18,9 @@ public class Profesor {
     private List<Curso> cursos;
     // Getters y Setters
 }
-[endcode]
+```
 
-[code:java]
+```java
 import jakarta.persistence.*;
 
 @Entity
@@ -32,10 +36,11 @@ public class Curso {
     Profesor profesor;
     // Getters y Setters
 }
-[endcode]
+```
 
-[st] Usando Docker para la base de datos
-[code:yml]
+## Usando Docker para la base de datos
+
+```yml
 services:
   db:
     image: postgres:17
@@ -53,10 +58,10 @@ services:
 
 volumes:
   my-volume:
-[endcode]
-
+```
 
 Para crear el contenedor ejecuta:
-[code:sh]
+
+```sh
 docker-compose up -d
-[endcode] 
+```

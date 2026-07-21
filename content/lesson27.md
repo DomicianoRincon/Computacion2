@@ -1,30 +1,32 @@
-[t] ¿Qué es REST?
-[st] Arquitectura REST
+# ¿Qué es REST?
+
+## Arquitectura REST
+
 REST (Representational State Transfer) es un estilo de arquitectura para servicios web. Define cómo los sistemas se comunican a través de HTTP usando recursos identificados por URLs y verbos estándar.
 
-[mermaid]
+```mermaid
 flowchart TD
   C([Cliente]) -->|HTTP Request| S([Servidor REST])
   S -->|HTTP Response + JSON| C
   S --> R1[Recurso: /usuarios]
   S --> R2[Recurso: /cursos]
   S --> R3[Recurso: /productos]
-[endmermaid]
+```
 
-[st] Principios fundamentales de REST
-[list]
-`Recursos` — Todo se representa como un recurso identificado por una URL. Ejemplos: `/usuarios`, `/cursos/{id}`.
-`Verbos HTTP` — La acción se define por el método HTTP (GET, POST, PUT, DELETE).
-`Stateless` — El servidor no guarda estado entre peticiones. Cada request debe ser autocontenido.
-`Representación uniforme` — Los recursos se representan en un formato estándar, generalmente JSON.
-`Idempotencia` — GET, PUT y DELETE son idempotentes: ejecutarlos varias veces produce el mismo resultado. POST no lo es.
-[endlist]
+## Principios fundamentales de REST
 
-[st] REST vs RESTful
+- `Recursos` — Todo se representa como un recurso identificado por una URL. Ejemplos: `/usuarios`, `/cursos/{id}`.
+- `Verbos HTTP` — La acción se define por el método HTTP (GET, POST, PUT, DELETE).
+- `Stateless` — El servidor no guarda estado entre peticiones. Cada request debe ser autocontenido.
+- `Representación uniforme` — Los recursos se representan en un formato estándar, generalmente JSON.
+- `Idempotencia` — GET, PUT y DELETE son idempotentes: ejecutarlos varias veces produce el mismo resultado. POST no lo es.
+
+## REST vs RESTful
+
 `REST` es el conjunto de principios arquitectónicos.
 `RESTful` es un servicio que implementa esos principios correctamente.
 
-[svg]
+```svg
 <svg xmlns="http://www.w3.org/2000/svg" width="520" height="110" font-family="Roboto, Arial, sans-serif" font-size="13">
   <rect x="10" y="20" width="220" height="70" rx="8" fill="#1e2a3a" stroke="#42A5F5" stroke-width="1.5"/>
   <text x="120" y="48" text-anchor="middle" fill="#42A5F5" font-size="14" font-weight="bold">REST</text>
@@ -36,17 +38,17 @@ flowchart TD
   <text x="400" y="68" text-anchor="middle" fill="#ccc">Implementación práctica</text>
   <text x="400" y="84" text-anchor="middle" fill="#aaa">Servicio que cumple REST</text>
 </svg>
-[endsvg]
+```
 
-[st] Semántica REST: diseño de endpoints
+## Semántica REST: diseño de endpoints
+
 Al diseñar endpoints siga estas convenciones:
-[list]
-Use sustantivos en plural para los recursos: `/usuarios`, `/cursos`, `/productos`.
-Nunca use verbos en la URL. El verbo ya lo define el método HTTP.
-Anide recursos cuando tenga sentido: `/cursos/{id}/estudiantes`.
-[endlist]
 
-[svg]
+- Use sustantivos en plural para los recursos: `/usuarios`, `/cursos`, `/productos`.
+- Nunca use verbos en la URL. El verbo ya lo define el método HTTP.
+- Anide recursos cuando tenga sentido: `/cursos/{id}/estudiantes`.
+
+```svg
 <svg xmlns="http://www.w3.org/2000/svg" width="520" height="260" font-family="Roboto, monospace" font-size="13">
   <rect x="10" y="10" width="500" height="240" rx="8" fill="#1a1f2e"/>
   <text x="30" y="38" fill="#aaa" font-size="12">MÉTODO</text>
@@ -72,14 +74,15 @@ Anide recursos cuando tenga sentido: `/cursos/{id}/estudiantes`.
   <text x="140" y="218" fill="#42A5F5">/usuarios/{id}</text>
   <text x="330" y="218" fill="#ddd">Eliminar</text>
 </svg>
-[endsvg]
+```
 
 Ejemplos de URLs incorrectas vs correctas:
-[code:http]
+
+```http
 ❌ GET /getUsuarios
 ❌ POST /createProducto
 ❌ DELETE /deleteUsuarioById
 ✅ GET /usuarios
 ✅ POST /productos
 ✅ DELETE /usuarios/{id}
-[endcode]
+```

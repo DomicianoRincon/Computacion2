@@ -1,25 +1,28 @@
-[t] Mockito
+# Mockito
+
 Las pruebas de integración validan el sistema completo, pero tienen un costo: levantar el contexto de Spring tarda varios segundos por ejecución.
 
 Mockito ofrece una alternativa: probar la capa de servicio de forma completamente aislada, sin base de datos ni contexto de Spring. En lugar de usar repositorios reales, simulamos sus respuestas con datos controlados. Las pruebas corren en milisegundos y se enfocan exclusivamente en la lógica de negocio.
 
 El objetivo de `Mockito` es simular dependencias devolviendo datos controlados por quien escribe la prueba, para verificar cómo reacciona la lógica ante distintos escenarios.
 
-[st] Dependencias
+## Dependencias
+
 El módulo `spring-boot-starter-test` ya incluye Mockito. Si necesitas agregarlo manualmente:
 
-[code:xml]
+```xml
 <dependency>
     <groupId>org.mockito</groupId>
     <artifactId>mockito-core</artifactId>
     <scope>test</scope>
 </dependency>
-[endcode]
+```
 
-[st] Activar Mockito
+## Activar Mockito
+
 El punto de partida es una clase de test con la anotación `@ExtendWith(MockitoExtension.class)`. Esta anotación activa el motor de Mockito para la clase sin necesitar levantar ningún contexto de Spring.
 
-[code:java]
+```java
 package com.example.myapp.services;
 
 import com.example.myapp.model.Course;
@@ -42,14 +45,15 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class CourseServiceTest {
 }
-[endcode]
+```
 
 A diferencia de `@SpringBootTest`, aquí no se levanta ningún contexto. Solo existe la clase de test y Mockito escuchando.
 
-[st] Crear el Mock
+## Crear el Mock
+
 Un `@Mock` es una implementación falsa de una clase o interfaz. Mockito la genera automáticamente y por defecto todos sus métodos no hacen nada: devuelven `null`, `0`, listas vacías, etc. Nosotros decidimos exactamente qué devolverá en cada test.
 
-[code:java]
+```java
 @ExtendWith(MockitoExtension.class)
 public class CourseServiceTest {
 
@@ -57,14 +61,15 @@ public class CourseServiceTest {
     private CourseRepository courseRepository;
 
 }
-[endcode]
+```
 
 `courseRepository` ahora es una versión simulada. Cuando el servicio le llame a `findAll()` o `findById(...)`, nosotros controlamos qué responde.
 
-[st] Inyectar el Mock en el Servicio
+## Inyectar el Mock en el Servicio
+
 `@InjectMocks` crea una instancia real de `CourseService` e inyecta automáticamente los mocks que declaramos como sus dependencias. Equivale a hacer `new CourseService(courseRepository)` pero sin escribirlo.
 
-[code:java]
+```java
 @ExtendWith(MockitoExtension.class)
 public class CourseServiceTest {
 
@@ -75,14 +80,15 @@ public class CourseServiceTest {
     private CourseService courseService;
 
 }
-[endcode]
+```
 
 `courseService` es el objeto real que vamos a probar. `courseRepository` es el objeto falso que le inyectamos como dependencia.
 
-[st] Preparar los datos con `@BeforeEach`
+## Preparar los datos con `@BeforeEach`
+
 En lugar de repetir la construcción de objetos en cada test, usamos `@BeforeEach` para crear los datos de prueba una sola vez antes de cada método. Esto mantiene los tests limpios y enfocados.
 
-[code:java]
+```java
 @ExtendWith(MockitoExtension.class)
 public class CourseServiceTest {
 
@@ -113,14 +119,15 @@ public class CourseServiceTest {
         course2.setName("Ingeniería de Software IV");
     }
 }
-[endcode]
+```
 
 A diferencia de las pruebas de integración, aquí no hay `@AfterEach` de limpieza porque no hay base de datos que limpiar.
 
-[st] Simulando retornos de listas
+## Simulando retornos de listas
+
 Con la clase configurada, ya podemos escribir tests. Usa el patrón AAA y la convención `MethodName_WhenCondition_ExpectedBehavior`.
 
-[code:java]
+```java
 @Test
 void getAllCourses_WhenCalled_ReturnsCourseList() {
     // Arrange: definimos qué devolverá el repositorio cuando se le llame
@@ -134,12 +141,13 @@ void getAllCourses_WhenCalled_ReturnsCourseList() {
     assertEquals("Computación en Internet II", courses.get(0).getName());
     assertEquals("Ingeniería de Software IV", courses.get(1).getName());
 }
-[endcode]
+```
 
 La estructura es: `when(llamado al repositorio).thenReturn(dato simulado)`. El servicio llama al repositorio, el repositorio devuelve lo que nosotros definimos, y probamos que el servicio lo procesa correctamente.
 
-[st] Simulando retornos de Optionals
-[code:java]
+## Simulando retornos de Optionals
+
+```java
 @Test
 void getCourseById_WhenExists_ReturnsCourse() {
     // Arrange
@@ -153,12 +161,13 @@ void getCourseById_WhenExists_ReturnsCourse() {
     assertEquals(1L, result.getId());
     assertEquals("Computación en Internet II", result.getName());
 }
-[endcode]
+```
 
 `Optional.of(object)` simula que el repositorio encontró el registro. `Optional.empty()` simula que no lo encontró.
 
-[st] Probando test negativos
-[code:java]
+## Probando test negativos
+
+```java
 @Test
 void getCourseById_WhenNotExists_ThrowsException() {
     // Arrange: el repositorio no encuentra nada
@@ -167,12 +176,13 @@ void getCourseById_WhenNotExists_ThrowsException() {
     // Act & Assert
     assertThrows(RuntimeException.class, () -> courseService.getCourseById(1L));
 }
-[endcode]
+```
 
-[st] Simulando métodos void
+## Simulando métodos void
+
 Para métodos que no devuelven valor la estructura cambia: `doNothing().when(mock).método()`.
 
-[code:java]
+```java
 @Test
 void deleteCourse_WhenExists_DeletesSuccessfully() {
     // Arrange
@@ -184,14 +194,15 @@ void deleteCourse_WhenExists_DeletesSuccessfully() {
     // Assert: verificamos que el repositorio fue llamado exactamente una vez
     verify(courseRepository, times(1)).deleteById(1L);
 }
-[endcode]
+```
 
 `verify()` es la única forma de "afirmar" algo en tests de métodos void: confirma que el mock fue invocado el número de veces esperado.
 
-[st] Simulando excepciones en métodos void
+## Simulando excepciones en métodos void
+
 `doThrow` simula que el repositorio lanza una excepción, permitiendo probar cómo reacciona el servicio ante fallos.
 
-[code:java]
+```java
 @Test
 void deleteCourse_WhenRepositoryFails_ThrowsException() {
     // Arrange
@@ -200,65 +211,55 @@ void deleteCourse_WhenRepositoryFails_ThrowsException() {
     // Act & Assert
     assertThrows(RuntimeException.class, () -> courseService.deleteCourse(1L));
 }
-[endcode]
+```
 
-[st] Resumen de la API de Mockito
+## Resumen de la API de Mockito
 
-[list]
-`when(repo.method()).thenReturn(value)` — simula un método que devuelve un valor
-`when(repo.method()).thenReturn(Optional.of(obj))` — simula que se encontró un registro
-`when(repo.method()).thenReturn(Optional.empty())` — simula que no se encontró nada
-`doNothing().when(repo).method()` — simula un método void sin efecto
-`doThrow(new Ex()).when(repo).method()` — simula un método void que lanza excepción
-`verify(repo, times(1)).method()` — verifica que el método fue llamado N veces
-[endlist]
+- `when(repo.method()).thenReturn(value)` — simula un método que devuelve un valor
+- `when(repo.method()).thenReturn(Optional.of(obj))` — simula que se encontró un registro
+- `when(repo.method()).thenReturn(Optional.empty())` — simula que no se encontró nada
+- `doNothing().when(repo).method()` — simula un método void sin efecto
+- `doThrow(new Ex()).when(repo).method()` — simula un método void que lanza excepción
+- `verify(repo, times(1)).method()` — verifica que el método fue llamado N veces
 
-[st] Retos
+## Retos
+
 Implementa los mismos tests que hiciste con pruebas de integración, ahora usando Mockito. No necesitas base de datos ni `@AfterEach` de limpieza. Compara el tiempo de ejecución de ambas suites y reflexiona: ¿cuándo conviene cada enfoque?
 
 Mockea `StudentRepository`. Verifica que el servicio lanza la excepción correcta cuando el repositorio devuelve `Optional.empty()`, y que retorna el estudiante cuando devuelve `Optional.of(student)`.
 
-[list]
-`findStudentByCode_WhenCodeIsValid_ShouldReturnStudent`
-`findStudentByCode_WhenCodeDoesNotExist_ShouldThrowRuntimeException`
-`findStudentByCode_WhenCodeIsNull_ShouldThrowIllegalArgumentException`
-[endlist]
+- `findStudentByCode_WhenCodeIsValid_ShouldReturnStudent`
+- `findStudentByCode_WhenCodeDoesNotExist_ShouldThrowRuntimeException`
+- `findStudentByCode_WhenCodeIsNull_ShouldThrowIllegalArgumentException`
 
 Mockea `CourseRepository` y `StudentRepository`. Para el caso positivo necesitas que `courseRepository.existsByName(...)` devuelva `true` y que `studentRepository.findByStudentCourses_Course_Name(...)` devuelva la lista esperada.
 
-[list]
-`getStudentsByCourseName_WhenCourseExists_ShouldReturnEnrolledStudents`
-`getStudentsByCourseName_WhenCourseHasNoStudents_ShouldReturnEmptyList`
-`getStudentsByCourseName_WhenCourseDoesNotExist_ShouldThrowRuntimeException`
-[endlist]
+- `getStudentsByCourseName_WhenCourseExists_ShouldReturnEnrolledStudents`
+- `getStudentsByCourseName_WhenCourseHasNoStudents_ShouldReturnEmptyList`
+- `getStudentsByCourseName_WhenCourseDoesNotExist_ShouldThrowRuntimeException`
 
 Mockea `StudentRepository`. Usa `doNothing().when(...)` para el caso exitoso y verifica con `verify()` que `delete(student)` fue llamado exactamente una vez.
 
-[list]
-`deleteStudentByCode_WhenStudentExists_ShouldRemoveFromDatabase`
-`deleteStudentByCode_WhenStudentDoesNotExist_ShouldThrowRuntimeException`
-[endlist]
+- `deleteStudentByCode_WhenStudentExists_ShouldRemoveFromDatabase`
+- `deleteStudentByCode_WhenStudentDoesNotExist_ShouldThrowRuntimeException`
 
 Mockea `StudentRepository`, `CourseRepository` y `StudentCourseRepository`. Este método consulta tres repositorios y tiene una verificación de estado: asegúrate de cubrir el caso en que `existsByStudentAndCourse(...)` devuelve `true`.
 
-[list]
-`enrollStudentInCourse_WhenValid_ShouldReturnNewEnrollment`
-`enrollStudentInCourse_WhenAlreadyEnrolled_ShouldThrowIllegalStateException`
-`enrollStudentInCourse_WhenStudentNotFound_ShouldThrowRuntimeException`
-`enrollStudentInCourse_WhenCourseNotFound_ShouldThrowRuntimeException`
-[endlist]
+- `enrollStudentInCourse_WhenValid_ShouldReturnNewEnrollment`
+- `enrollStudentInCourse_WhenAlreadyEnrolled_ShouldThrowIllegalStateException`
+- `enrollStudentInCourse_WhenStudentNotFound_ShouldThrowRuntimeException`
+- `enrollStudentInCourse_WhenCourseNotFound_ShouldThrowRuntimeException`
 
 Mockea `StudentRepository`, `CourseRepository` y `StudentCourseRepository`. Este método es void, así que no hay valor de retorno que afirmar. La única forma de verificar que funcionó correctamente es con `verify()`: confirma que `delete(enrollment)` fue llamado exactamente una vez. Para el caso `WhenNotEnrolled`, haz que `findByStudentAndCourse(...)` devuelva `Optional.empty()`.
 
-[list]
-`unenrollStudentFromCourse_WhenEnrolled_ShouldRemoveEnrollment`
-`unenrollStudentFromCourse_WhenNotEnrolled_ShouldThrowIllegalStateException`
-`unenrollStudentFromCourse_WhenStudentNotFound_ShouldThrowRuntimeException`
-`unenrollStudentFromCourse_WhenCourseNotFound_ShouldThrowRuntimeException`
-[endlist]
+- `unenrollStudentFromCourse_WhenEnrolled_ShouldRemoveEnrollment`
+- `unenrollStudentFromCourse_WhenNotEnrolled_ShouldThrowIllegalStateException`
+- `unenrollStudentFromCourse_WhenStudentNotFound_ShouldThrowRuntimeException`
+- `unenrollStudentFromCourse_WhenCourseNotFound_ShouldThrowRuntimeException`
 
 Para ejecutar los test puede usar
-[code:ini]
+
+```ini
 # Todo
 mvn test                                        
 # Una clase                                                                                                                         
@@ -269,8 +270,4 @@ mvn test -Dtest=StudentServiceTest#findStudentByCode_WhenExists_ReturnsStudent
 mvn test -Dtest="StudentServiceTest#findStudentByCode_WhenExists_ReturnsStudent+findStudentByCode_WhenNotExists_ThrowsRuntimeException"
 # Todas las clases de un paquete
 mvn test -Dtest="edu.co.icesi.introspringboot.unit.*"
-[endcode]
-
-
-
-
+```

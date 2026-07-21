@@ -1,5 +1,7 @@
-[t] Transacciones en Spring Boot
-[st] ¿Qué es una Transacción?
+# Transacciones en Spring Boot
+
+## ¿Qué es una Transacción?
+
 En el mundo de las bases de datos, una transacción es una secuencia de una o más operaciones que se ejecutan como una única unidad de trabajo. O todas las operaciones se completan con éxito, o ninguna de ellas se aplica. Esto garantiza la integridad y consistencia de los datos.
 
 Las transacciones se rigen por los principios ACID:
@@ -16,15 +18,17 @@ Las transacciones concurrentes se ejecutan de forma aislada unas de otras. Los r
 `Durability`
 Una vez que una transacción se ha completado con éxito (commit), sus cambios son permanentes y sobreviven a cualquier fallo del sistema.
 
-[st] La Magia de @Transactional
+## La Magia de @Transactional
+
 Spring Boot simplifica enormemente la gestión de transacciones con la anotación `@Transactional`. Cuando anotas un método con `@Transactional`, Spring lo envuelve en un proxy que se encarga de iniciar, confirmar (commit) o revertir (rollback) la transacción por ti.
 
 Un proxy es como un intermediario: en lugar de llamar directamente a tu método, se llama primero a un objeto "envoltorio" que decide qué hacer antes y después de ejecutar el método real.
 
 Por defecto, Spring hace commit si el método termina sin excepción, y rollback automático si lanza una `RuntimeException` o un `Error`.
 
-[st] Ciclo de una Transacción
-[mermaid]
+## Ciclo de una Transacción
+
+```mermaid
 sequenceDiagram
     actor Client as Cliente (Controller)
     participant Proxy as Spring Proxy (@Transactional)
@@ -46,7 +50,7 @@ sequenceDiagram
         Proxy->>DB: ROLLBACK
         Proxy-->>Client: propaga excepción
     end
-[endmermaid]
+```
 
 En Hibernate (o JPA), un objeto puede estar en cuatro estados principales: `transient`, `managed` (persistent), `detached` y `removed`. 
 
@@ -58,14 +62,15 @@ Un objeto `detached` es una entidad que fue gestionada pero ya no lo está (por 
 
 Finalmente, un objeto `removed` es una entidad marcada para eliminación y será borrada en el flush o al finalizar la transacción. El problema con FetchType.LAZY es diferente: la entidad sí está gestionada, pero sus relaciones se cargan mediante proxies, por lo que si intentas acceder a ellas fuera de la sesión o transacción se produce un LazyInitializationException.
 
-[st] Entidades del Proyecto Base
+## Entidades del Proyecto Base
+
 Usaremos las entidades del proyecto: `Student`, `Course` y `Enrollment` (tabla `student_course` con clave compuesta). La operación de matrícula es un caso perfecto para ilustrar transacciones: debe crear un registro en `student_course` vinculando un estudiante y un curso existentes. Si algo falla a mitad del proceso, nada debe quedar a medias.
 
+## Caso Exitoso: Matricular un Estudiante
 
-[st] Caso Exitoso: Matricular un Estudiante
 El servicio busca el estudiante y el curso, crea el `Enrollment` y lo persiste. Si ambos existen y no hay errores, la transacción hace commit y el registro queda en la base de datos.
 
-[code:java]
+```java
 @Service
 public class EnrollmentService {
 
@@ -96,12 +101,13 @@ public class EnrollmentService {
         // Si llegamos aquí sin excepción → COMMIT automático
     }
 }
-[endcode]
+```
 
-[st] Simulación de Fallo: Rollback en Acción
+## Simulación de Fallo: Rollback en Acción
+
 Ahora simulamos que algo explota después de guardar la matrícula. Spring detecta la `RuntimeException` y hace rollback: el `Enrollment` guardado en el `save()` se deshace y la base de datos queda igual que antes de entrar al método.
 
-[code:java]
+```java
 @Transactional
 public void enrollWithFailure(Integer studentId, Integer courseId) {
     Student student = studentRepository.findById(studentId)
@@ -123,14 +129,15 @@ public void enrollWithFailure(Integer studentId, Integer courseId) {
 
     // NUNCA se llega aquí → el save() anterior se revierte (ROLLBACK)
 }
-[endcode]
+```
 
 Aunque `save()` se ejecutó, el registro no quedará en la base de datos porque Spring intercepta la excepción y llama a `ROLLBACK` antes de devolver el control al cliente.
 
-[st] El Error Transient
+## El Error Transient
+
 El error `TransientPropertyValueException` ocurre cuando intentas guardar una entidad que referencia a otra entidad en estado *transient*, es decir, un objeto que aún no tiene ID porque nunca fue persistido.
 
-[code:java]
+```java
 @Transactional
 public void createCourseWithNewProfessor(String courseName) {
     // Este Professor NO viene de la base de datos, fue creado en memoria
@@ -146,11 +153,11 @@ public void createCourseWithNewProfessor(String courseName) {
     // Hibernate no sabe qué ID poner en el FK professor_id
     courseRepository.save(course);
 }
-[endcode]
+```
 
 La solución es guardar primero el `Professor` antes de asignarlo, o usar `cascade = CascadeType.PERSIST` en la relación.
 
-[code:java]
+```java
 @Transactional
 public void createCourseWithNewProfessorFixed(String courseName) {
     Professor newProfessor = new Professor();
@@ -164,12 +171,13 @@ public void createCourseWithNewProfessorFixed(String courseName) {
 
     courseRepository.save(course); // funciona
 }
-[endcode]
+```
 
-[st] RestController para Probar Todo
+## RestController para Probar Todo
+
 Exponemos los tres casos como endpoints HTTP. Los IDs están quemados en código para simplificar: el estudiante 1 y el curso 2 ya existen en el `data.sql` del proyecto.
 
-[code:java]
+```java
 @RestController
 public class EnrollmentController {
 
@@ -205,29 +213,30 @@ public class EnrollmentController {
         return Map.of("resultado", "sin error");
     }
 }
-[endcode]
+```
 
 Para verificar que el rollback funcionó correctamente, accede a la consola H2 en `http://localhost:8080/h2` y revisa que la tabla `student_course` no tenga el registro que intentabas crear con `/enroll-fail`.
 
-[st] ¿Por qué los Selects también usan @Transactional?
+## ¿Por qué los Selects también usan @Transactional?
+
 Es común ver métodos de solo lectura anotados con `@Transactional`. Hay dos razones concretas para esto.
 
 La primera es evitar el `LazyInitializationException`. Cuando una colección está marcada como `FetchType.LAZY` (el default en `@OneToMany`), Hibernate no la carga hasta que la accedes. Pero para cargarla necesita una sesión activa.
 
 La segunda razón es la optimización con `readOnly = true`. Cuando marcas una transacción como de solo lectura, Hibernate omite el *dirty checking* al final: no necesita comparar el estado original de cada objeto con su estado actual para saber si algo cambió. En métodos que cargan muchos objetos, esto reduce el trabajo considerablemente.
 
-[code:java]
+```java
 @Transactional(readOnly = true)
 public List<Student> getAllStudents() {
     return studentRepository.findAll();
     // Hibernate NO hará dirty checking al cerrar la transacción
     // Solo lectura: más rápido, sin riesgo de writes accidentales
 }
-[endcode]
+```
 
 La convención recomendada es anotar la clase de servicio completa con `@Transactional(readOnly = true)` y sobreescribir con `@Transactional` solo los métodos que modifican datos.
 
-[code:java]
+```java
 @Service
 @Transactional(readOnly = true) // default para todos los métodos
 public class StudentService {
@@ -241,4 +250,4 @@ public class StudentService {
     @Transactional // sobreescribe: readOnly = false
     public void delete(Integer id) { ... }
 }
-[endcode]
+```

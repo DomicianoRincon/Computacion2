@@ -1,17 +1,22 @@
-[t] Desacoplamiento en la Capa de Servicio
-[st] ¿Por qué usar interfaces en la capa de servicio?
+# Desacoplamiento en la Capa de Servicio
+
+## ¿Por qué usar interfaces en la capa de servicio?
+
 Usar interfaces en la capa de servicio es una práctica recomendada que promueve el desacoplamiento entre la lógica de negocio y la capa de presentación (controladores). Esto significa que los cambios en la implementación de la lógica de negocio no afectarán a los controladores, siempre y cuando la interfaz no cambie.
-[icon] image18.png
+
+![Imagen](image18.png "icon")
+
 Cumplimos básicamente 2 principios
 
 Los módulos de alto nivel no deberían importar nada de los módulos de bajo nivel. Ambos deberían depender de abstracciones (por ejemplo, interfaces).
 
 Las abstracciones no deberían depender de los detalles. Los detalles (implementaciones concretas) deberían depender de las abstracciones.
-[st] Ejemplo: Servicio de Estudiantes
+
+## Ejemplo: Servicio de Estudiantes
 
 Vamos a crear un servicio para gestionar estudiantes. Primero, definimos la interfaz `StudentService`:
 
-[code:java]
+```java
 package com.example.myapp.services;
 
 import com.example.myapp.model.Student;
@@ -22,15 +27,15 @@ public interface StudentService {
     Student getStudentById(String id);
     void saveStudent(Student student);
 }
-[endcode]
+```
 
 Esta interfaz define los métodos que cualquier implementación de `StudentService` debe proporcionar.
 
-[st] Implementación del Servicio
+## Implementación del Servicio
 
 Ahora, creamos una clase que implemente la interfaz `StudentService`. Esta clase contendrá la lógica de negocio real.
 
-[code:java]
+```java
 package com.example.myapp.services;
 
 import com.example.myapp.model.Student;
@@ -61,15 +66,15 @@ public class StudentServiceImpl implements StudentService {
         studentRepository.save(student);
     }
 }
-[endcode]
+```
 
 En esta implementación, inyectamos `StudentRepository` para interactuar con la base de datos. La anotación `@Service` le dice a Spring que esta clase es un bean de servicio.
 
-[st] Uso en el Controlador
+## Uso en el Controlador
 
 Finalmente, en el controlador, inyectamos la interfaz `StudentService`, no la implementación:
 
-[code:java]
+```java
 package com.example.myapp.controllers;
 
 import com.example.myapp.model.Student;
@@ -94,17 +99,17 @@ public class StudentController {
     }
 
 }
-[endcode]
+```
 
 Al inyectar la interfaz, el controlador no depende de la implementación concreta. Esto nos permite cambiar la implementación de `StudentService` en el futuro (por ejemplo, para usar una base de datos diferente o para añadir caching) sin tener que modificar el controlador.
 
-[st] Seleccionando una implementación con @Qualifier
+## Seleccionando una implementación con @Qualifier
 
 ¿Qué pasa si tenemos más de una implementación de la misma interfaz? Spring no sabrá cuál inyectar y lanzará un error. Para resolver esto, podemos usar la anotación `@Qualifier`.
 
 Supongamos que tenemos otra implementación de `StudentService` que obtiene los datos de un archivo CSV:
 
-[code:java]
+```java
 package com.example.myapp.services;
 
 import com.example.myapp.model.Student;
@@ -132,13 +137,13 @@ public class StudentServiceCsvImpl implements StudentService {
         // Lógica para guardar un estudiante en un archivo CSV
     }
 }
-[endcode]
+```
 
 Note que hemos dado un nombre al bean `@Service("studentServiceCsv")`. Por defecto, el nombre del bean es el nombre de la clase con la primera letra en minúscula (`studentServiceImpl`).
 
 Ahora, en el controlador, podemos usar `@Qualifier` para especificar qué implementación queremos inyectar:
 
-[code:java]
+```java
 package com.example.myapp.controllers;
 
 import com.example.myapp.model.Student;
@@ -164,6 +169,6 @@ public class StudentController {
         return "Estudiantes: " + count;
     }
 }
-[endcode]
+```
 
 De esta manera, podemos tener múltiples implementaciones de la misma interfaz y seleccionar la que necesitemos en cada caso.

@@ -1,8 +1,6 @@
-[t] Simulador de Beans
+# Simulador de Beans
 
-
-
-[beansim]
+```beansim
 @Component
 public class BeanA {
     @Autowired
@@ -11,5 +9,6 @@ public class BeanA {
 
 @Repository
 public class BeanB {}
-[endbeansim]
+```
+
 .

@@ -1,5 +1,7 @@
-[t] Navegación Dinámica
-[st] El Escenario Común: Lista y Detalle
+# Navegación Dinámica
+
+## El Escenario Común: Lista y Detalle
+
 Una de las funcionalidades más comunes en aplicaciones web es mostrar una lista de elementos (como productos, usuarios o, en nuestro caso, estudiantes) y permitir al usuario hacer clic en uno de ellos para ver una página con información detallada.
 
 Vamos a construir esto paso a paso con Spring Boot y Thymeleaf.
@@ -9,12 +11,13 @@ El flujo es el siguiente:
 `2`  Navegación: En la lista, cada nombre de estudiante es un enlace que apunta a una URL única, como `/students/1`, `/students/2`, etc.
 `3`  Página de Detalle: Al hacer clic en un enlace, el controlador intercepta la URL, extrae el ID del estudiante, busca la información de *ese* estudiante en específico y la muestra en una nueva plantilla de detalle.
 
-[st] Paso 1: El Controlador para la Lista
+## Paso 1: El Controlador para la Lista
+
 Primero, modificamos el controlador que muestra la lista. La clave es generar un enlace (`<a>`) para cada estudiante en el bucle `th:each`.
 
 Usaremos `th:href` junto con la expresión `@{...}` para construir una URL dinámica que incluya el ID del estudiante.
 
-[code:html]
+```html
 ...
 <ul>
     <li th:each="s : ${studentsList}">
@@ -23,7 +26,7 @@ Usaremos `th:href` junto con la expresión `@{...}` para construir una URL diná
         </a>
     </li>
 </ul>
-[endcode]
+```
 
 Nótese esta sintaxis `@{/students/{id}(id=${student.id})}`
 `@{...}` se usa para generar una referencia a la raíz de los controllers y se puede usar rutas relativas
@@ -32,10 +35,11 @@ Nótese esta sintaxis `@{/students/{id}(id=${student.id})}`
 
 `(id=${student.id})` se usa para que Thymeleaf reemplace el placeholder `{id}` con el valor real de `student.id` para cada estudiante en la iteración. El resultado será, por ejemplo, `/students/1`, `/students/2`, etc.
 
-[st] Paso 2: El Controlador para la Vista de Detalle
+## Paso 2: El Controlador para la Vista de Detalle
+
 Ahora, necesitamos un método en nuestro controlador que pueda manejar estas nuevas URLs (`/students/{id}`). Usamos la anotación `@PathVariable` para capturar el valor del ID desde la URL.
 
-[code:java]
+```java
 @Controller
 @RequestMapping("/students")
 public class StudentController {
@@ -52,12 +56,13 @@ public class StudentController {
     ...
 
 }
-[endcode]
+```
 
-[st] Paso 2 Alternativo:
+## Paso 2 Alternativo:
+
 Hay otra forma de recibir el id del estudiante como parámetro y es por medio de la sintaxis `/students?id=123`. Para esto necesita un método de controller que reciba correctamente el id.
 
-[code:java]
+```java
 @Controller
 @RequestMapping("/students")
 public class StudentController {
@@ -74,10 +79,11 @@ public class StudentController {
     ...
 
 }
-[endcode]
+```
 
 Y en la referencia en la plantilla queda un poco diferente:
-[code:html]
+
+```html
 ...
 <ul>
     <li th:each="s : ${studentsList}">
@@ -86,12 +92,13 @@ Y en la referencia en la plantilla queda un poco diferente:
         </a>
     </li>
 </ul>
-[endcode]
+```
 
-[st] Paso 3: La Plantilla para la Vista de Detalle
+## Paso 3: La Plantilla para la Vista de Detalle
+
 Finalmente, creamos la plantilla `student-detail.html`. Esta plantilla a `student` y mostrará todos sus atributos.
 
-[code:html]
+```html
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -126,9 +133,10 @@ Finalmente, creamos la plantilla `student-detail.html`. Esta plantilla a `studen
     </div>
 </body>
 </html>
-[endcode]
+```
 
-[st] Competencia
+## Competencia
+
 Vamos a batirnos en un duelo de implementación. Recibirán tareas y deberán realizar la implementación.
 
 Por tarea, se escogerán los 3 primeros estudiantes que levanten la mano. Se evaluará el desarrollo de cada tarea y posteriormente se otorgarán los puntos: 3 a la mejor implementación, 2 al siguiente y 1 al siguiente.

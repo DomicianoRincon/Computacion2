@@ -1,16 +1,24 @@
-[t] Formas de definir un context
+# Formas de definir un context
+
 De momento sabemos crear la estructura del software por medio de una arquitectura basada en tres capas. Vamos a ver cómo le podemos dar información inicial a un contexto, por ejemplo, si necesitamos condiciones iniciales.
-[st] Inicializar
+
+## Inicializar
+
 Vamos a hacer uso de métodos de inicialización
-[code:java]
+
+```java
 <bean id="objetoA" class="MiClaseA" init-method="initializeBean">
     ...
 </bean>
-[endcode]
+```
+
 Aquí se ejecuta el método `initializeBean()` luego de que Spring Framework instancia los beans y hace el wiring
-[icon] https://miro.medium.com/v2/0*_D0yYUddRl-BOLiq
+
+![Imagen](https://miro.medium.com/v2/0*_D0yYUddRl-BOLiq "icon")
+
 Debes crear la siguiente información inicial. Puede usar un método GET de alguno de los Servlet/JSP para verificar si efectivamente esta información fue almacenada
-[code:plain]
+
+```plain
 Cursos
         Curso 1:
             10001
@@ -24,7 +32,6 @@ Cursos
             10003
             Matemáticas Aplicadas II
             Marlon Gómez
-
 
 Estudiantes
     Estudiante 1:
@@ -44,13 +51,19 @@ Estudiantes
                 10001
             Curso 2:
                 10002
-[endcode]
-[st] Versiones del proyecto
+```
+
+## Versiones del proyecto
+
 Tenemos este esquema y basado en esto, vamos a ver otras formas de especificar un contexto de Spring.
-[icon]image10.png|Esquema de capas Service y Repository
-[st] Definición de Beans con @Bean
+
+![Esquema de capas Service y Repository](image10.png "icon")
+
+## Definición de Beans con @Bean
+
 Usando las anotaciones `@Configuration` y `@Bean`, podemos especificar beans y sus conexiones. Por ejemplo
-[code:java]
+
+```java
 @Configuration
 public class AppConfig {
     @Bean("miBean")
@@ -59,9 +72,11 @@ public class AppConfig {
         return new MiClase();
     }
 }
-[endcode]
+```
+
 Si quieremos conectar los beans basta con usar métodos y usar las dependencias sobre los constructores
-[code:java]
+
+```java
 @Configuration
 public class AppConfig {
     @Bean
@@ -73,9 +88,11 @@ public class AppConfig {
         return new StudentService(studentRepository);
     }
 }
-[endcode]
+```
+
 Finalmente cambiemos el conexto de la aplicación
-[code:java]
+
+```java
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
@@ -85,34 +102,39 @@ public class Application {
         return context;
     }
 }
-[endcode]
+```
+
 Puede especificar un `initMethod` para que cuando el bean se construya, se puedan ejecutar acciones
-[code:java]
+
+```java
 @Bean(initMethod="intialize")
 public StudentRepository studentRepository() {
     return new StudentRepository();
 }
-[endcode]
+```
 
-[st] Definición de Beans con `@Component`
+## Definición de Beans con `@Component`
+
 Puedes usar la anotación `@Component` sobre la clase para definir un bean. Existen alias como `@Service` y `@Repository` para mayor semántica.
 
-[code:java]
+```java
 @Component
 public class MiClaseA {}
-[endcode]
+```
 
-[code:java]
+```java
 @Repository
 public class CourseRepository {}
-[endcode]
+```
 
-[code:java]
+```java
 @Service
 public class CourseService {}
-[endcode]
+```
+
 La conexión de beans sucede de forma automática siempre que se declaren correctamento los constructores
-[code:java]
+
+```java
 @Repository
 public class CourseRepository {}
 
@@ -123,9 +145,11 @@ public class CourseService{
         this.courseRepository = courseRepository;
     }
 }
-[endcode]
+```
+
 Aunque en el curso preferiré hacerlo de la siguiente manera
-[code:java]
+
+```java
 @Repository
 public class CourseRepository {
     ...
@@ -136,41 +160,49 @@ public class CourseService{
     @Autowired
     private CourseRepository courseRepository;
 }
-[endcode]
-[st] Inicialización con @PostConstruct
+```
+
+## Inicialización con @PostConstruct
+
 Puede poner condiciones iniciales, puede usar la anotación `@PostConstruct`. Para usarlo necesitará la dependencia
-[code:xml]
+
+```xml
 <dependency>
     <groupId>jakarta.annotation</groupId>
     <artifactId>jakarta.annotation-api</artifactId>
     <version>2.1.1</version>
 </dependency>
-[endcode]
+```
+
 De aquí en adelante, cualquier método que marque con `@PostConstruct` se ejecutará una vez construido el bean.
-[code:java]
+
+```java
 @PostConstruct
 public void initializeData(){
     // Código de inicialización
 }
-[endcode]
+```
 
-[st] @ComponentScan
+## @ComponentScan
+
 La anotación `@ComponentScan` se utiliza en Spring para escanear automáticamente componentes (clases anotadas con `@Component`, `@Service`, `@Repository`, `@Controller`, etc.) dentro de un paquete base y registrarlos como beans en el contexto de la aplicación. Esto elimina la necesidad de declarar explícitamente cada bean en la configuración XML o Java.
 
 Ejemplo de uso:
-[code:java]
+
+```java
 @Configuration
 @ComponentScan(basePackages = "com.example.myapp")
 public class AppConfig {
     // ...
 }
-[endcode]
+```
 
 Para escanear múltiples paquetes, puedes especificar un array de strings:
-[code:java]
+
+```java
 @Configuration
 @ComponentScan(basePackages = {"com.example.service", "com.example.repository"})
 public class AppConfig {
     // ...
 }
-[endcode]
+```

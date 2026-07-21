@@ -1,7 +1,8 @@
-[t] MapStruct
+# MapStruct
+
 MapStruct es una librería de Java que genera automáticamente el código de conversión entre objetos, como entidades y DTOs. Elimina el código repetitivo de mapeo manual.
 
-[mermaid]
+```mermaid
 flowchart TD
   E[Entity\nDatos de BD] -->|toDTO| D[DTO\nDatos del cliente]
   D -->|toEntity| E
@@ -9,11 +10,13 @@ flowchart TD
   M([MapStruct Mapper]) --> E
   M --> D
   M --> D2
-[endmermaid]
+```
 
-[st] ¿Por qué MapStruct?
+## ¿Por qué MapStruct?
+
 Sin MapStruct, el mapeo manual es tedioso y propenso a errores:
-[code:java]
+
+```java
 // Sin MapStruct — manual y repetitivo
 public UsuarioDTO toDTO(Usuario entity) {
     UsuarioDTO dto = new UsuarioDTO();
@@ -23,13 +26,15 @@ public UsuarioDTO toDTO(Usuario entity) {
     // ...un campo más y hay que recordar agregarlo aquí
     return dto;
 }
-[endcode]
+```
 
 Con MapStruct, el compilador genera ese código automáticamente a partir de una interfaz.
 
-[st] Instalación
+## Instalación
+
 Agregue las dependencias y el plugin al `pom.xml`:
-[code:xml]
+
+```xml
 <!-- Variable de versión -->
 <properties>
     <mapstruct.version>1.6.3</mapstruct.version>
@@ -48,10 +53,11 @@ Agregue las dependencias y el plugin al `pom.xml`:
     <version>${mapstruct.version}</version>
     <scope>provided</scope>
 </dependency>
-[endcode]
+```
 
 Agregue el plugin de compilación para que el procesador de anotaciones funcione correctamente:
-[code:xml]
+
+```xml
 <plugin>
     <groupId>org.apache.maven.plugins</groupId>
     <artifactId>maven-compiler-plugin</artifactId>
@@ -68,18 +74,21 @@ Agregue el plugin de compilación para que el procesador de anotaciones funcione
         </annotationProcessorPaths>
     </configuration>
 </plugin>
-[endcode]
+```
 
 Verifique que el procesador genera el código correctamente:
-[code:bash]
+
+```bash
 mvn compile
-[endcode]
+```
 
 Después de compilar, el código generado aparece en `target/generated-sources/annotations/`. Si algo falla, ese directorio muestra exactamente qué mapper no pudo generarse.
 
-[st] Mapping simple
+## Mapping simple
+
 Suponga que tiene una entidad `Curso` y quiere un DTO que exponga solo algunos campos:
-[code:java]
+
+```java
 // Entidad de base de datos
 @Entity
 public class Curso {
@@ -99,10 +108,11 @@ public class CursoDTO {
     private Long profesorId; // solo el ID del profesor
     // getters y setters
 }
-[endcode]
+```
 
 El mapper declara los métodos de conversión. MapStruct genera la implementación en tiempo de compilación:
-[code:java]
+
+```java
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -122,15 +132,17 @@ public interface CursoMapper {
     @Mapping(source = "profesorId", target = "profesor.id")
     void updateEntityFromDTO(CursoDTO dto, @MappingTarget Curso entity);
 }
-[endcode]
+```
 
 El atributo `componentModel = "spring"` hace que el mapper sea un bean de Spring, lo que permite inyectarlo con `@Autowired`.
 
 En `@Mapping`, `source` es la ruta del objeto de entrada y `target` la del objeto de salida. La notación con punto (`profesor.id`) permite acceder a atributos anidados.
 
-[st] Usar el Mapper en el Service
+## Usar el Mapper en el Service
+
 Inyecte el mapper en el servicio y úselo para convertir entre entidad y DTO:
-[code:java]
+
+```java
 @Service
 public class CursoServiceImpl implements CursoService {
 
@@ -169,11 +181,13 @@ public class CursoServiceImpl implements CursoService {
         return cursoMapper.toDTO(cursoRepository.save(entity));
     }
 }
-[endcode]
+```
 
-[st] DTOs anidados
+## DTOs anidados
+
 Si en lugar de solo el ID del profesor quiere el DTO completo del profesor dentro del DTO de curso, necesita un mapper por cada tipo involucrado:
-[code:java]
+
+```java
 // DTOs
 public class CursoDTO {
     private Long id;
@@ -186,20 +200,22 @@ public class ProfesorDTO {
     private String nombre;
     private String email;
 }
-[endcode]
+```
 
 Primero cree el mapper del tipo anidado:
-[code:java]
+
+```java
 @Mapper(componentModel = "spring")
 public interface ProfesorMapper {
     ProfesorDTO toDTO(Profesor profesor);
     Profesor toEntity(ProfesorDTO dto);
     void updateEntityFromDTO(ProfesorDTO dto, @MappingTarget Profesor entity);
 }
-[endcode]
+```
 
 Luego referencie ese mapper desde el mapper principal con `uses`:
-[code:java]
+
+```java
 @Mapper(componentModel = "spring", uses = ProfesorMapper.class)
 public interface CursoMapper {
 
@@ -211,13 +227,15 @@ public interface CursoMapper {
 
     void updateEntityFromDTO(CursoDTO dto, @MappingTarget Curso entity);
 }
-[endcode]
+```
 
 Con `uses = ProfesorMapper.class`, MapStruct sabe que cuando necesite convertir `Profesor` ↔ `ProfesorDTO` debe delegar al `ProfesorMapper`.
 
-[st] Controller con DTOs y ResponseEntity
+## Controller con DTOs y ResponseEntity
+
 Con DTOs y el mapper configurados, el controller queda limpio y solo se ocupa del HTTP:
-[code:java]
+
+```java
 @RestController
 @RequestMapping("/cursos")
 public class CursoController {
@@ -255,25 +273,27 @@ public class CursoController {
         return ResponseEntity.noContent().build();
     }
 }
-[endcode]
+```
 
-[st] GYM de REST
+## GYM de REST
+
 Implemente los siguientes endpoints para el proyecto del curso. Recuerde usar semántica REST correcta.
-[list]
-Obtener todos los cursos con su respectivo profesor. Paginados.
-Obtener un curso por `id` con su profesor y su lista de estudiantes.
-Buscar cursos por coincidencias en el nombre. Paginados.
-Obtener todos los estudiantes inscritos en un curso específico.
-Consultar todos los cursos de un estudiante por su código.
-Buscar estudiantes por programa académico, ordenados por código. Paginados.
-Listar todos los cursos con la cantidad de estudiantes inscritos.
-Crear un nuevo curso y asignarle un profesor existente.
-Registrar un nuevo estudiante.
-Matricular un estudiante en un curso.
-Actualizar nombre, código o programa de un estudiante.
-Eliminar una matrícula por `id`.
-[endlist]
-[code:plain]
+
+- Obtener todos los cursos con su respectivo profesor. Paginados.
+- Obtener un curso por `id` con su profesor y su lista de estudiantes.
+- Buscar cursos por coincidencias en el nombre. Paginados.
+- Obtener todos los estudiantes inscritos en un curso específico.
+- Consultar todos los cursos de un estudiante por su código.
+- Buscar estudiantes por programa académico, ordenados por código. Paginados.
+- Listar todos los cursos con la cantidad de estudiantes inscritos.
+- Crear un nuevo curso y asignarle un profesor existente.
+- Registrar un nuevo estudiante.
+- Matricular un estudiante en un curso.
+- Actualizar nombre, código o programa de un estudiante.
+- Eliminar una matrícula por `id`.
+
+```plain
 https://classroom.github.com/a/tFfCV0KZ
-[endcode]
+```
+
 Entregue esta tarea a más tardar el jueves de semana 13.
