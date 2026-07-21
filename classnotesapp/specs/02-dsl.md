@@ -1,118 +1,107 @@
-# SPEC-02 · Custom Lesson DSL
+# SPEC-02 · Lesson Markdown
 
 ## What It Is
 
-Lessons are plain `.md` files that **do not use standard Markdown**. They use a proprietary line-based tag language parsed by `LessonParser.jsx`. Each line is examined top-to-bottom; unrecognised lines are rendered as raw text with a trailing `<br />`.
+Lessons are `.md` files written in **conventional Markdown** (CommonMark + GFM), parsed with `react-markdown` + `remark-gfm`. The handful of constructs with no standard Markdown equivalent (video embeds, DartPad, the Bean Visualizer, "try it live" tabs) are expressed as fenced code blocks with a special language or a meta string — every valid lesson file is still ordinary Markdown that any standard renderer/linter/editor preview understands.
 
-The parser lives entirely in `src/components/lesson/LessonParser.jsx` and returns `{ elements, subtitles, lessonTitle }`.
-
----
-
-## Block Tags
-
-Block tags must appear alone on a line (trimmed). They open or close a parsing mode.
-
-### `[t] <title text>`
-- Renders a `LessonTitle` (`h1`).
-- The first `[t]` in the file also sets `lessonTitle` (used by the TOC header).
-- Supports inline code and inline links inside the text.
-
-### `[st] <subtitle text>`
-- Renders a `LessonSub` (`h4`) with a DOM `id` of `subtitle-<lineIndex>`.
-- Appends to the `subtitles` array → appears in the Table of Contents.
-- Supports inline code and inline links.
-
-### `[code:<lang>]` … `[endcode]`
-- Everything between the open and close tags is captured verbatim into a `CodeBlock`.
-- `<lang>` must be a PrismJS language identifier (see supported languages below).
-- Raw lines (including indentation) are preserved exactly.
-- A `[trycode] <gistId>` tag immediately after `[endcode]` wraps the code block in a `TryCodeButton` tab panel.
-
-**Supported languages:** `java`, `javascript`, `jsx`, `sql`, `dart`, `yaml`, `ini`, `http`, `sql-enhanced`, `java-enhanced`
-
-### `[v] <videoId> | <title>`
-- Renders a `YouTubeEmbed` iframe at 16:9 aspect ratio.
-- `videoId` is the YouTube video ID string.
-- `title` is the accessible title for the iframe.
-
-### `[i] <imageName.ext> | <alt text>`
-- Renders an `ImageBlock` (full-width, rounded corners, elevation shadow).
-- `imageName.ext` is a filename relative to `src/assets/` **or** an absolute `https://` URL.
-- `alt text` is optional but recommended.
-
-### `[icon] <imageName.ext> | <alt text>`
-- Renders an `IconBlock` (full-width image, no border-radius, larger vertical margin).
-- Accepts the same source formats as `[i]`.
-
-### `[link] <displayname> <url>`
-### `[link] (<display text with spaces>) <url>`
-- Renders a standalone `Link` component (block-level, opens in new tab, green accent color, launch icon).
-- Parentheses syntax allows display names that contain spaces.
-- Can also appear **inline** inside paragraph text (same syntax).
-
-### `[dartpad] <gistId>`
-- Renders a `DartPadEmbed` iframe loaded from the given GitHub Gist ID.
-
-### `[trycode] <gistId>`
-- Must follow immediately after a `[endcode]` line.
-- Wraps the preceding code block in a two-tab panel: **Código** (static view) and **Fire it up!** (live DartPad).
-- If there is no pending code block, this tag is silently ignored.
-
-### `[list]` … `[endlist]`
-- Every non-empty line between the tags becomes a list item.
-- Renders as a `<ul>` with custom bullet marks (4 px wide white rectangles).
-- List items support inline code and inline links.
-
-### `[beansim]` … `[endbeansim]`
-- Renders a `BeanVisualizer` interactive canvas component.
-- Everything between the tags is passed as `initialCode` to the visualizer (Java annotations or XML bean definitions).
-- See SPEC-07 for BeanVisualizer details.
+The parser lives in `src/components/lesson/LessonParser.jsx` and returns `{ elements, subtitles, lessonTitle }`. A `unified`/`remark-parse` pre-pass over the parsed tree extracts `lessonTitle` (first `#`) and `subtitles` (`##` headings, in document order) synchronously, before `elements` is ever rendered — `LessonPage.jsx` needs both available immediately, not after mount.
 
 ---
 
-## Inline Tags
+## Standard Markdown Mapping
 
-Inline tags appear *within* regular text or list items. They are processed by `parseInlineCode` and `parseInlineLinks`.
+| Markdown | Renders as |
+|---|---|
+| `# Title` | `LessonTitle` (`h1`). First `#` in the file also sets `lessonTitle` (TOC header). |
+| `## Subtitle` | `LessonSub` (`h4`) with a DOM `id` assigned in document order; appended to `subtitles` → Table of Contents. |
+| `### Heading` | Plain bold `h5`-style `Typography`. Not added to the TOC (only `##` is). |
+| Paragraph text | `LessonParagraph`. Blank line = new paragraph; a single newline inside one is a soft wrap, not a forced line break. |
+| `` `code` `` | Inline `<code class="inline-code">`. |
+| `**bold**`, `*italic*` | Native `<strong>`/`<em>` — not supported by the old DSL. |
+| `[text](url)` | Styled `Link` component (accent color, launch icon, opens in a new tab). Works both inline in a sentence and as a link that's the only thing in its paragraph. |
+| `![alt](src)` | `ImageBlock` (full-width, rounded corners, shadow). |
+| `![alt](src "icon")` | `IconBlock` (no border-radius, larger vertical margin) — the literal `"icon"` title string is the signal, not a real HTML title tooltip. |
+| `- item` / `1. item` | `<ul>`/`<ol>` with the custom 4px bar-marker bullet style. |
+| ` ```lang ` … ` ``` ` | `CodeBlock` (PrismJS highlighting) for any language not special-cased below. |
 
-### `` `code` ``
-- Backtick-delimited text renders as `<code class="inline-code">`.
-- Styled with `theme.inlineCodeBg` background and `theme.inlineCodeText` color.
-
-### `[link] <displayname> <url>` (inline)
-### `[link] (<display text>) <url>` (inline)
-- Same as the block link, but appears within a paragraph or list item.
-- Renders as an inline `Link` component.
+`src` for images: a filename resolves against `src/assets/` (e.g. `image6.png`); an `http(s)://` URL is used as-is.
 
 ---
 
-## Table of Contents (`toc.md`) Tags
+## Special Fenced-Block Languages
 
-`src/content/toc.md` uses its own subset of tags parsed by `TableOfContentsParser`:
+These fenced-code languages are intercepted before reaching `CodeBlock` and dispatch to a specific component instead. The fence body is the component's input verbatim (trailing newline stripped).
+
+### ` ```mermaid `
+Renders `MermaidBlock` — the fence body is the Mermaid diagram source.
+
+### ` ```beansim `
+Renders `BeanVisualizer` (see SPEC-07) — the fence body is Java annotations or XML bean definitions, passed as `initialCode`.
+
+### ` ```svg `
+Injects the fence body as raw SVG via `dangerouslySetInnerHTML`, wrapped in a scrollable container.
+
+### ` ```dartpad `
+Renders a standalone `DartPadEmbed`. The fence body (trimmed) is the Gist ID.
+```
+​```dartpad
+abc123gistid
+​```
+```
+
+### ` ```youtube `
+Renders `YouTubeEmbed`. The fence body is `<videoId> | <title>`.
+```
+​```youtube
+dQw4w9WgXcQ | Video de ejemplo
+​```
+```
+
+### `trycode=<gistId>` fence meta (any other language)
+Text after the language on the opening fence line is the fence's *meta string*; when it contains `trycode=<gistId>`, the block renders as a `TryCodeButton` — two tabs, **Código** (the static `CodeBlock`) and **Fire it up!** (a live `DartPadEmbed` for that Gist).
+```
+​```dart trycode=abc123
+void main() { ... }
+​```
+```
+
+---
+
+## Adding a New Lesson
+
+1. Create `content/lessonXX.md` **at the repo root** (sibling to `classnotesapp/`, not inside it — see `CLAUDE.md` → Content Pipeline) using standard Markdown plus the constructs above.
+2. Add a `[lesson:url]` entry pointing at its raw GitHub URL to `toc.md` (repo root) — see the Table of Contents section below.
+3. If the lesson uses local images, they must already exist in `classnotesapp/src/assets/` (referenced by filename only, no path) — image files themselves are bundled with the app, not fetched remotely.
+4. Push to **both** git remotes (`origin` and `second`) — `second` is what `raw.githubusercontent.com` actually serves. See `CLAUDE.md` → Git Remotes.
+
+---
+
+## Table of Contents (`toc.md`)
+
+`toc.md` lives at the **repo root** (not `src/content/`) and is fetched at runtime from a URL configured in `classnotesapp/src/content/config.js` (SPEC-10). It uses its own small tag language, parsed by `TableOfContentsParser` — unrelated to the lesson-body Markdown above and deliberately not converted, since it's already simple:
 
 | Tag | Purpose |
 |---|---|
 | `[t] <label>` | Section heading in the sidebar (non-clickable) |
 | `[d]` | Visual divider in the sidebar |
-| `[lesson] <filename.md>` | Lesson entry; filename must exist in `src/content/` |
+| `[lesson:url] <url>` or `[lesson:url] <url> \| <label>` | Lesson entry; `url` is fetched at runtime (SPEC-09), typically a `raw.githubusercontent.com` link into `content/`. Optional `\| <label>` overrides the sidebar text (defaults to the filename). |
 
 - Lessons are numbered sequentially (1, 2, 3…) by order of appearance in `toc.md`.
 - Lines beginning with `**` are ignored (used for commented-out entries).
+- A bare `[lesson] <filename.md>` (no `:url`) is the old local-file form; the current parser logs a warning and ignores it — every real entry must be `[lesson:url]`.
 
 ---
 
-## Parsing Rules & Edge Cases
+## Parsing Notes
 
-1. Lines are processed top-to-bottom; no look-ahead except for the `pendingCodeBlock` / `[trycode]` pairing.
-2. Blank lines outside a block tag produce a bare `<br />`.
-3. Non-tag lines outside a block produce `{text}<br />` (raw text with line break).
-4. Trailing blank lines at the end of the file are stripped before parsing.
-5. `[beansim]` content is stripped of its own `[beansim]`/`[endbeansim]` tags before being passed to the visualizer (the visualizer does its own stripping as a safety measure).
+1. `extractHeadings` walks the parsed Markdown tree once (for `lessonTitle`/`subtitles`), independent of the `elements` render pass — both walk the same tree so heading order/ids line up, but this is two passes over the content, not one.
+2. `p` (paragraph) and the list-item wrapper both render with `component="div"` on their `Typography`, not the MUI default `<p>` — real Markdown can nest block content (a standalone image, a "loose" list item's own paragraph) inside what was authored as a paragraph, which a real `<p>` tag cannot legally contain.
+3. Fenced code blocks are assumed to always declare a language (` ```java `, never a bare ` ``` `) — the renderer distinguishes inline vs. block `code` by the presence of the `language-*` class, so an un-languaged fence would be misread as inline code.
 
 ---
 
-## Adding a New DSL Tag
+## Adding a New Special Fenced-Block Language
 
-1. Add a detection block in `LessonParser.jsx` following the existing pattern (check `trimmedLine.startsWith(...)`, flush paragraph buffer if needed, push component to `elements`).
-2. Create the React component in `src/components/lesson/` or the appropriate subfolder.
-3. Import the component at the top of `LessonParser.jsx`.
-4. Document the tag in this file.
+1. Add a branch in the `code` component in `LessonParser.jsx` (`if (lang === "yourtag") return <YourComponent ... />`).
+2. Create the React component in `src/components/lesson/` or the appropriate subfolder if it doesn't exist yet.
+3. Document it in this file, in the "Special Fenced-Block Languages" section above.

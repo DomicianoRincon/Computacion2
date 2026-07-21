@@ -1,11 +1,11 @@
 # Spec Status
 
-Last updated: 2026-03-05
+Last updated: 2026-07-21
 
 | Spec | Title | Status | Notes |
 |---|---|---|---|
 | SPEC-01 | Project Overview | ✅ Docs only | No code needed |
-| SPEC-02 | Custom Lesson DSL | ✅ Implemented | All tags working |
+| SPEC-02 | Lesson Markdown | ✅ Implemented | Migrated from the old bracket-tag DSL to conventional Markdown (`react-markdown`/`remark-gfm`); all 84 lessons converted |
 | SPEC-03 | Layout & Responsive | ✅ Implemented | See bugs L1, L2 below |
 | SPEC-04 | Design System | ✅ Implemented | |
 | SPEC-05 | Components | ✅ Implemented | See bugs P1–P5 below |
@@ -20,7 +20,7 @@ Last updated: 2026-03-05
 
 | ID | Description | Status |
 |---|---|---|
-| P1 | LessonParagraph unreachable | ⏸ Deferred — requires lesson file migration |
+| P1 | LessonParagraph unreachable | ✅ Fixed — moot after the SPEC-02 Markdown migration (paragraphs render through it now); also fixed an invalid `<p>`-nesting bug found along the way (`component="div"` on `LessonParagraph`/list items) |
 | P2 | IconBlock / ImageBlock identical render | ⏸ Deferred — minor cosmetic |
 | P3 | `[d]` divider renders nothing in drawer | ✅ Fixed |
 | P4 | TOC check-circle button non-functional | ✅ Fixed |
