@@ -21,6 +21,7 @@ The parser lives in `src/components/lesson/LessonParser.jsx` and returns `{ elem
 | `[text](url)` | Styled `Link` component (accent color, launch icon, opens in a new tab). Works both inline in a sentence and as a link that's the only thing in its paragraph. |
 | `![alt](src)` | `ImageBlock` (full-width, rounded corners, shadow). |
 | `![alt](src "icon")` | `IconBlock` (no border-radius, larger vertical margin) — the literal `"icon"` title string is the signal, not a real HTML title tooltip. |
+| `![alt](src "frameNN")` | `FramedImageBlock` — wraps the image in a padded white card scaled to `NN`% of the column width (e.g. `"frame60"` → 60%; bare `"frame"` → 100%). Intended for screenshots exported on a transparent background. Like `"icon"`, the title string is the signal. |
 | `- item` / `1. item` | `<ul>`/`<ol>` with the custom 4px bar-marker bullet style. |
 | ` ```lang ` … ` ``` ` | `CodeBlock` (PrismJS highlighting) for any language not special-cased below. |
 

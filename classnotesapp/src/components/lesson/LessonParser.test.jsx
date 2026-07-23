@@ -105,6 +105,12 @@ describe('LessonParser — block constructs', () => {
     expect(() => parse(content)).not.toThrow();
   });
 
+  it('renders a framed image for a frameNN image title', () => {
+    const { elements } = parse('![Captura](image1.png "frame60")');
+    renderElements(elements);
+    expect(screen.getByAltText('Captura')).toBeTruthy();
+  });
+
   it('renders a dartpad tab when a code fence has trycode= meta', () => {
     const content = '```dart trycode=abc123\nint x = 1;\n```';
     const { elements } = parse(content);

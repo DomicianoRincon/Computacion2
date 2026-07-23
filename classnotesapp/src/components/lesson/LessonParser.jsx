@@ -12,6 +12,7 @@ import ImageBlock from "@/components/lesson/ImageBlock";
 import LessonContainer from "@/components/lesson/LessonContainer";
 import DartPadEmbed from "@/components/embed/DartPadEmbed";
 import IconBlock from "@/components/lesson/IconBlock";
+import FramedImageBlock from "@/components/lesson/FramedImageBlock";
 import Link from "@/components/lesson/Link";
 import images from "@/assets";
 import TryCodeButton from "./TryCodeButton";
@@ -127,6 +128,13 @@ const LessonParser = ({ content }) => {
     a: ({ href, children }) => <Link displayname={children} url={href} />,
     img: ({ src, alt, title }) => {
       const resolved = resolveImageSrc(src);
+      // `frameNN` title (e.g. "frame60") wraps the image in a padded white card
+      // scaled to NN% width — for screenshots exported on a transparent bg.
+      const frameMatch = /^frame(\d{1,3})?$/.exec(title || "");
+      if (frameMatch) {
+        const scale = frameMatch[1] ? Number(frameMatch[1]) / 100 : 1;
+        return <FramedImageBlock src={resolved} alt={alt} scale={scale} />;
+      }
       return title === "icon" ? (
         <IconBlock src={resolved} alt={alt} />
       ) : (
